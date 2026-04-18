@@ -1,0 +1,32 @@
+diff --git a/node_modules/@robelest/convex-auth/dist/server/oauth/factory.js b/node_modules/@robelest/convex-auth/dist/server/oauth/factory.js
+index a95323b..8fd17e7 100644
+--- a/node_modules/@robelest/convex-auth/dist/server/oauth/factory.js
++++ b/node_modules/@robelest/convex-auth/dist/server/oauth/factory.js
+@@ -2,11 +2,26 @@
+ function normalizeTokens(tokens) {
+ 	const raw = tokens.data;
+ 	const rawScopes = typeof raw.scope === "string" ? raw.scope : void 0;
++	// Patch: arctic's OAuth2Tokens.accessTokenExpiresAt() throws when `expires_in`
++	// is missing from the token response. GitHub OAuth Apps never return
++	// expires_in, so the upstream code path always throws. Swallow the throw
++	// and fall back to raw.expires_in or undefined. Remove once robel ships a
++	// version that guards this internally.
++	let accessTokenExpiresAt;
++	try {
++		if (typeof tokens.accessTokenExpiresAt === "function") {
++			accessTokenExpiresAt = tokens.accessTokenExpiresAt();
++		} else if (typeof raw.expires_in === "number") {
++			accessTokenExpiresAt = new Date(Date.now() + raw.expires_in * 1e3);
++		}
++	} catch {
++		accessTokenExpiresAt = typeof raw.expires_in === "number" ? new Date(Date.now() + raw.expires_in * 1e3) : void 0;
++	}
+ 	return {
+ 		accessToken: typeof raw.access_token === "string" ? raw.access_token : void 0,
+ 		refreshToken: typeof raw.refresh_token === "string" ? raw.refresh_token : void 0,
+ 		idToken: typeof raw.id_token === "string" ? raw.id_token : void 0,
+-		accessTokenExpiresAt: typeof tokens.accessTokenExpiresAt === "function" ? tokens.accessTokenExpiresAt() : typeof raw.expires_in === "number" ? new Date(Date.now() + raw.expires_in * 1e3) : void 0,
++		accessTokenExpiresAt,
+ 		scopes: rawScopes ? rawScopes.split(/[,\s]+/).map((scope) => scope.trim()).filter((scope) => scope.length > 0) : void 0,
+ 		raw: tokens.data
+ 	};

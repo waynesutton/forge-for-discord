@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* PostHog-inspired design tokens. Tailwind v4 reads @theme vars as utilities. */
+@theme {
+  --color-bg: #eeefe7;
+  --color-surface: #ffffff;
+  --color-ink: #151515;
+  --color-muted: #676565;
+  --color-border: #d6d3c7;
+  --color-accent: #f54e00;
+  --color-accent-hover: #d93f00;
+  --color-success: #2d8e64;
+  --color-danger: #c14040;
+  --color-warning: #d4a200;
+
+  --font-sans: "Matter", "Inter", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-window: 12px;
+
+  --shadow-window: 2px 3px 0 rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+html,
+body {
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in oklab, var(--color-accent) 8%, var(--color-bg)) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at top right,
+      color-mix(in oklab, var(--color-success) 8%, var(--color-bg)) 0%,
+      transparent 24%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-bg) 92%, white) 0%,
+      var(--color-bg) 100%
+    );
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 18%, white);
+  color: var(--color-ink);
+}
