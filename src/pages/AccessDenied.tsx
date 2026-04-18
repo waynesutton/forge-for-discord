@@ -11,7 +11,7 @@ import { useAutoSignOut } from "../hooks/useAutoSignOut";
 // JWT (the refresh loop is what caused the storm of `auth:signIn` calls in
 // the Convex logs). The email we learned is cached in a `useMemo` so the
 // message survives after `access` unmounts post-signout. A link sends the
-// user back to /auth/sign-in to try another GitHub account.
+// user back to / (the homepage, which renders SignIn) to try another account.
 export function AccessDenied() {
   const { isAuthenticated } = useAuth();
   const { access } = useEnsureAppUser(isAuthenticated);
@@ -84,7 +84,7 @@ export function AccessDenied() {
           </p>
 
           <Link
-            to="/auth/sign-in"
+            to="/"
             className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-window)] border border-[var(--color-ink)] bg-[var(--color-ink)] px-4 py-2.5 text-sm font-medium text-[var(--color-surface)] shadow-[var(--shadow-window)] transition-transform duration-150 active:translate-y-px"
           >
             <SignInIcon size={16} weight="bold" aria-hidden />

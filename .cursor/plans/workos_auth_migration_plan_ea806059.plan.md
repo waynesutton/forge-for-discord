@@ -27,7 +27,10 @@ todos:
     content: Update .env.example and .env.local with VITE_WORKOS_* vars; set WORKOS_CLIENT_ID and WORKOS_AUTHKIT_DOMAIN in dev and prod Convex deployments; unset old Robel envs
     status: pending
   - id: docs
-    content: Update README.md stack + env blocks, changelog.md, files.md; add prds/workos-auth-migration.md
+    content: "Rewrite README.md (stack + env blocks + access model), docs/setup-guide.md, docs/discord-setup.md, TASK.md, AGENTS.md, CLAUDE.md, prds/forge-prd_1.md, prds/access-control.md; add prds/workos-auth-migration.md; append archive note to prds/robel-auth-integration-report.md; update changelog.md and files.md"
+    status: pending
+  - id: cleanup-robel
+    content: "Repo-wide sweep: delete .cursor/skills/robel-auth/ and patches/@robelest+*.patch, scrub Robel / GitHub OAuth / AUTH_GITHUB / JWT_PRIVATE_KEY / auth.user.viewer / AuthApiRefs mentions from .cursor/rules/dev2.mdc and from code comments across convex/ and src/; verify with `rg -n 'robel|@robelest|GitHub OAuth|AUTH_GITHUB|JWT_PRIVATE_KEY'` returning only prds/robel-auth-integration-report.md"
     status: pending
   - id: validate
     content: Clear dev users row, run npm run dev, test @convex.dev sign-in (owner + admin roles) and non-@convex.dev denial, confirm no refresh loop in Convex logs, run lint + build
@@ -139,10 +142,25 @@ Convex prod deployment, same keys but with production WorkOS app values. Unset `
 
 ### Docs
 
-- [`README.md`](README.md): update the stack bullet (replace `@robelest/convex-auth via GitHub OAuth` with `WorkOS AuthKit via @convex-dev/workos`) and the env block in Getting started.
-- [`changelog.md`](changelog.md): add a 0.2.0 entry describing the auth migration.
-- [`files.md`](files.md): add `src/lib/connectAuth.tsx`, `src/pages/AuthCallback.tsx`, remove `patches/...`.
-- Add [`prds/workos-auth-migration.md`](prds/workos-auth-migration.md) with the dev/prod URLs, env matrix, validation checklist. Leave `prds/robel-auth-integration-report.md` in place as history.
+Do a repo-wide sweep to remove every reference to `@robelest/convex-auth`, Robel, and the GitHub OAuth sign-in path. Comments, JSDoc, and prose should describe WorkOS AuthKit instead. Code comments that specifically document Robel quirks (JWT claims gap, `auth.user.viewer`, `normalizeTokens` patch, `AuthApiRefs` cast, refresh-token loop) should be deleted outright, not ported.
+
+Files to rewrite or prune:
+
+- [`README.md`](README.md): rewrite the Stack bullet, Getting started env block, Scripts section (drop Robel CLI key-generation instructions), and Access model paragraph. New language: "Sign in with WorkOS AuthKit. Access is gated to `@convex.dev` emails, with `wayne@convex.dev` as owner and every other `@convex.dev` as admin. Configure in `convex/lib/access.ts`."
+- [`docs/setup-guide.md`](docs/setup-guide.md): remove all Robel / GitHub OAuth sections and replace with a WorkOS AuthKit walkthrough (create WorkOS Connect app, set redirect URIs, CORS, JWT template, copy client id + authkit domain into frontend and Convex envs). Link to [workos.com/docs/authkit/hosted-ui](https://workos.com/docs/authkit/hosted-ui).
+- [`docs/discord-setup.md`](docs/discord-setup.md): scan for any Robel or GitHub OAuth crossreferences and update them. Discord setup itself is unchanged.
+- [`changelog.md`](changelog.md): add a 0.2.0 entry describing the auth migration (removed `@robelest/convex-auth` and GitHub OAuth, added WorkOS AuthKit).
+- [`files.md`](files.md): add `src/lib/connectAuth.tsx` and `src/pages/AuthCallback.tsx`; remove `patches/...`; rewrite the `src/hooks/useAuth.ts`, `src/hooks/useAutoSignOut.ts`, `src/lib/auth.ts`, `convex/auth.ts`, `convex/auth.config.ts`, and `convex/lib/auth.ts` descriptions to match the new implementations.
+- [`TASK.md`](TASK.md): scrub Robel / GitHub OAuth line items; add a WorkOS migration phase entry.
+- [`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md): drop the Robel-specific skill pointers and reference the WorkOS skill from the reference repo instead.
+- [`prds/forge-prd_1.md`](prds/forge-prd_1.md) and [`prds/access-control.md`](prds/access-control.md): rewrite the auth provider and env var sections to describe WorkOS.
+- [`prds/robel-auth-integration-report.md`](prds/robel-auth-integration-report.md): archive only. Add a one-line header note: "Historical report kept for context. Forge migrated to WorkOS AuthKit on <date>. See `prds/workos-auth-migration.md`." Do not edit the body.
+- Add [`prds/workos-auth-migration.md`](prds/workos-auth-migration.md): dev + prod URLs, env matrix, redirect URI list, JWT template, validation checklist, rollback notes.
+- [`.cursor/skills/robel-auth/`](.cursor/skills/robel-auth/): delete the folder (skill + `scripts/check-upstream.sh`).
+- [`.cursor/rules/dev2.mdc`](.cursor/rules/dev2.mdc): remove Robel / GitHub OAuth mentions; add WorkOS equivalents.
+- Code-level comments: rewrite the top-of-file comments in [`convex/auth.ts`](convex/auth.ts), [`convex/auth.config.ts`](convex/auth.config.ts), [`convex/lib/auth.ts`](convex/lib/auth.ts), [`convex/users.ts`](convex/users.ts), [`convex/http.ts`](convex/http.ts), [`src/lib/auth.ts`](src/lib/auth.ts), [`src/hooks/useAuth.ts`](src/hooks/useAuth.ts), [`src/hooks/useAutoSignOut.ts`](src/hooks/useAutoSignOut.ts), [`src/hooks/useEnsureAppUser.ts`](src/hooks/useEnsureAppUser.ts), [`src/components/auth/Protected.tsx`](src/components/auth/Protected.tsx), [`src/components/auth/SignIn.tsx`](src/components/auth/SignIn.tsx), [`src/pages/AccessDenied.tsx`](src/pages/AccessDenied.tsx), and [`src/pages/Dashboard.tsx`](src/pages/Dashboard.tsx). No surviving mention of `Robel`, `@robelest`, `robel-auth`, `GitHub OAuth`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `JWT_PRIVATE_KEY`, `JWKS`, `auth.user.viewer`, or `AuthApiRefs`.
+
+Final sweep: after the migration lands, run `rg -n "robel|@robelest|GitHub OAuth|AUTH_GITHUB|JWT_PRIVATE_KEY"` from the repo root. The only allowed hit is `prds/robel-auth-integration-report.md` (kept as history).
 
 ## Validation
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Navigate } from "react-router";
+import { Link, Navigate } from "react-router";
 import {
+  BookOpen,
   GithubLogo,
   CircleNotch,
   Lightning,
@@ -87,7 +88,18 @@ export function SignIn() {
               </p>
             ) : null}
 
-            <p className="text-xs text-[var(--color-muted)]">For Convex by Convex.</p>
+            <div className="flex items-center justify-between border-t border-[var(--color-border)] pt-4">
+              <p className="text-xs text-[var(--color-muted)]">For Convex by Convex.</p>
+              {/* Public docs link. Same route a logged-in admin sees, so
+                  anyone evaluating Forge can read the setup guide before
+                  requesting access. */}
+              <Link
+                to="/docs"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+                <BookOpen size={14} weight="bold" aria-hidden />
+                <span>Read the setup guide</span>
+              </Link>
+            </div>
           </div>
         </section>
 

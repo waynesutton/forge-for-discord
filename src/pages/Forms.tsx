@@ -56,6 +56,7 @@ export function Forms() {
       <WindowTabs
         tabs={[
           { to: "/app/forms", label: "Forms", active: true },
+          { to: "/docs", label: "Docs" },
           { to: "/app/settings", label: "Settings" },
         ]}
       />

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useQuery } from "convex/react";
 import {
+  BookOpen,
   DiscordLogo,
   FileText,
   Gear,
@@ -20,11 +21,18 @@ import { useMe } from "../hooks/useMe";
 export function Dashboard() {
   const me = useMe();
   const { signOut } = useAuth();
+  const navigate = useNavigate();
   const currentGuild = useQuery(api.guilds.current);
   const [pending, setPending] = useState(false);
 
+  // Navigate to `/` immediately so the user leaves the `/app` subtree before
+  // any pending access-query refetch resolves. Without this step the Protected
+  // route can briefly see `{ authenticated: false, allowed: false }` from
+  // `api.users.access` while the Robel `isAuthenticated` flag is still true,
+  // which used to flash the access-denied screen on the way out.
   const handleSignOut = async () => {
     setPending(true);
+    navigate("/", { replace: true });
     try {
       await signOut();
     } finally {
@@ -48,6 +56,13 @@ export function Dashboard() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            to="/docs"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]"
+          >
+            <BookOpen size={16} weight="bold" aria-hidden />
+            <span>Docs</span>
+          </Link>
           <Link
             to="/app/settings"
             className="inline-flex items-center gap-2 rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]"
@@ -120,6 +135,24 @@ export function Dashboard() {
               </span>
               <span className="text-sm text-[var(--color-muted)]">
                 Connect a Discord server or disconnect one you no longer need.
+              </span>
+            </span>
+          </Link>
+
+          <Link
+            to="/docs"
+            className="flex items-start gap-3 rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-bg)] p-4 transition-colors hover:border-[var(--color-ink)] sm:col-span-2"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+              <BookOpen size={18} weight="bold" aria-hidden />
+            </span>
+            <span className="flex flex-col">
+              <span className="text-sm font-semibold text-[var(--color-ink)]">
+                Docs
+              </span>
+              <span className="text-sm text-[var(--color-muted)]">
+                Setup guide, Discord bot permissions, auth rules, and deploy
+                notes with copy ready markdown.
               </span>
             </span>
           </Link>

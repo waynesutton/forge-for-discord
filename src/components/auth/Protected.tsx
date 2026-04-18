@@ -10,7 +10,7 @@ import type { ProtectedContext } from "../../hooks/useMe";
 //                            in sync for allowed accounts.
 // Four outcomes:
 //   1. Auth still hydrating               -> spinner
-//   2. Unauthenticated                    -> /auth/sign-in
+//   2. Unauthenticated (either source)    -> /
 //   3. Authenticated, not on allowlist    -> /auth/denied
 //   4. Authenticated + allowed + user row -> render <Outlet />
 // No raw effects live here (see react-effect-decision skill).
@@ -24,17 +24,26 @@ export function Protected() {
   }
 
   if (!isAuthenticated) {
+    // Send signed-out sessions to the homepage (`/`). That route renders the
+    // SignIn screen, so users see the same page they would have at
+    // `/auth/sign-in`, but the URL matches the product landing.
     return (
-      <Navigate
-        to="/auth/sign-in"
-        replace
-        state={{ from: location.pathname }}
-      />
+      <Navigate to="/" replace state={{ from: location.pathname }} />
     );
   }
 
   if (access === undefined) {
     return <FullscreenSpinner label="Checking access" />;
+  }
+
+  // Sign-out race guard: `signOutNow()` clears the Convex auth token before
+  // the Robel client's `onChange` fires, so there is a brief window where
+  // `isAuthenticated` still reads true but the access query is already
+  // unauth'd and returns `authenticated: false`. Route that to the homepage
+  // instead of `/auth/denied` so legitimate admins never see the access
+  // denied screen on logout.
+  if (!access.authenticated) {
+    return <Navigate to="/" replace state={{ from: location.pathname }} />;
   }
 
   if (!access.allowed) {

@@ -106,6 +106,19 @@ Mirrors `prds/forge-prd_1.md` section 12. Check items off as they ship. Move com
 
 ## Completed
 
+### 2026-04-18 — Logout race fix, public docs, localhost to production guide
+
+- Fixed admins getting flashed to `/auth/denied` on sign-out. Root cause: `signOutNow()` clears the Convex auth token synchronously via `convex.clearAuth?.()`, but the Robel auth client's `onChange` (and therefore `isAuthenticated`) only flips after the async `auth.signOut()` round-trip. During that window, `api.users.access` refetches unauthenticated and returns `{ authenticated: false, allowed: false }`, and `src/components/auth/Protected.tsx` hit its `!access.allowed` branch before `!isAuthenticated`.
+- Fix: `Protected` now checks `access.authenticated` first and routes those sessions to `/`; `/auth/denied` is reserved for real authenticated-but-not-allowlisted cases. `src/pages/Dashboard.tsx` also calls `navigate("/", { replace: true })` before awaiting `signOut()` so the `/app` subtree unmounts before any in-flight access query resolves with the cleared auth token.
+- Made docs reachable without signing in. `src/App.tsx` moved `/docs` and `/docs/:slug` out from under `Protected`; `/app/docs` and `/app/docs/:slug` redirect to `/docs` for back-compat.
+- `src/pages/Docs.tsx` now reads the `Protected` outlet via `useOutletContext` (returns `undefined` on the public route). Logged-out visitors see the same content without the Settings button or Forms/Docs/Settings tabs, the back button routes to `/`, and a Sign in CTA appears in the top right.
+- `src/components/auth/SignIn.tsx` gained a "Read the setup guide" link under the Continue with GitHub button so anyone evaluating Forge can read the docs from the homepage.
+- Dashboard and Forms navigation now link to `/docs`.
+- Added a new "Go from localhost to production" section (slug `localhost-to-production`) to both `docs/setup-guide.md` and `src/pages/Docs.tsx`. Eight-step checklist: prove the flow on dev, create a separate Convex prod project via `npx convex init --prod`, create a second Discord application, create a second GitHub OAuth app, set every prod env var via `npx convex env set --prod`, `npm run deploy`, smoke test in incognito, rotate secrets safely.
+- Dropped hardcoded `honorable-mammoth-130.convex.site` and `usable-kiwi-349.convex.site` URLs from the docs. Everywhere now reads as `<your dev convex site url>` / `<your prod convex site url>` with shape `https://<animal-name-1234>.convex.site`, matching the style used on https://www.convex.dev/components/static-hosting.
+- Verified with `npx tsc --noEmit -p tsconfig.app.json` and `npx eslint src/`. Both clean.
+- Files touched: `src/App.tsx`, `src/components/auth/Protected.tsx`, `src/components/auth/SignIn.tsx`, `src/pages/Dashboard.tsx`, `src/pages/Docs.tsx`, `src/pages/Forms.tsx`, `docs/setup-guide.md`, `changelog.md`, `files.md`, `TASK.md`.
+
 ### 2026-04-18 — App-wide UI polish, font loading, copy clarity
 
 - Preloaded Inter (400/500/600/700) and JetBrains Mono (400/500) from Google Fonts in `index.html` with matching `preconnect` hints so the primary UI font no longer falls back to system-ui on first paint.
