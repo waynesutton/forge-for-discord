@@ -182,10 +182,13 @@ export const registerCommand = action({
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      console.error("discord_register_command_failed", {
+        status: res.status,
+        body: text.slice(0, 500),
+      });
       throw new ConvexError({
         code: "discord_register_command_failed",
         status: res.status,
-        body: text.slice(0, 500),
       });
     }
 
@@ -236,10 +239,13 @@ export const refreshGuildChannels = action({
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      console.error("discord_channels_refresh_failed", {
+        status: res.status,
+        body: text.slice(0, 500),
+      });
       throw new ConvexError({
         code: "discord_channels_refresh_failed",
         status: res.status,
-        body: text.slice(0, 500),
       });
     }
 
@@ -309,10 +315,13 @@ export const refreshGuildRoles = action({
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      console.error("discord_roles_refresh_failed", {
+        status: res.status,
+        body: text.slice(0, 500),
+      });
       throw new ConvexError({
         code: "discord_roles_refresh_failed",
         status: res.status,
-        body: text.slice(0, 500),
       });
     }
 
@@ -383,10 +392,13 @@ export const exchangeInstallCode = internalAction({
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      console.error("discord_exchange_failed", {
+        status: res.status,
+        body: text.slice(0, 500),
+      });
       throw new ConvexError({
         code: "discord_exchange_failed",
         status: res.status,
-        body: text.slice(0, 500),
       });
     }
 

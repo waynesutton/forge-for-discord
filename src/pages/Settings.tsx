@@ -410,6 +410,10 @@ function errorMessage(code: string): string {
       return "Discord didn't return the expected info. Try the install once more.";
     case "server_not_configured":
       return "Convex env is missing DISCORD_BOT_TOKEN, DISCORD_PUBLIC_KEY, or DISCORD_APPLICATION_ID. Set them and retry.";
+    case "oauth_exchange_failed":
+      return "Discord rejected the install token exchange. Check the OAuth client secret and redirect URL, then retry.";
+    case "oauth_register_failed":
+      return "Forge couldn't finish recording the install. Check the Convex logs for details and retry.";
     default:
       return `Install failed: ${code}`;
   }

@@ -106,6 +106,44 @@ Mirrors `prds/forge-prd_1.md` section 12. Check items off as they ship. Move com
 
 ## Completed
 
+### 2026-04-18 23:20 UTC — Docs: OWNER_EMAIL commands in every setup block
+
+- Added `npx convex env set OWNER_EMAIL you@yourdomain.com` and the `--prod` variant to every copy-paste command block in the setup docs so anyone forking Forge sees the command where they are already running `npx convex env set`, not just mentioned inline.
+- `docs/setup-guide.md`: added to "Set the rest of the auth env on Convex" (dev), the matching prod block, "Set the same keys on prod with --prod" under the env var reference table, and step 5 of "Go from localhost to production".
+- `src/pages/Docs.tsx`: same additions in the in-app `/docs` markdown. "Admin access and how to add admins" now shows both commands inline. Added a new `OWNER_EMAIL` row to the Environment variables reference table and a "Tenancy model" callout pointing at `prds/security-audit-fixes-2026-04-18.md`.
+- Verification: `npx tsc --noEmit -p tsconfig.app.json` and `npx eslint src/pages/Docs.tsx` clean.
+- Files touched: `docs/setup-guide.md`, `src/pages/Docs.tsx`, `changelog.md`, `files.md`, `TASK.md`.
+
+### 2026-04-18 22:53 UTC — Security audit fixes (HIGH / MEDIUM / LOW)
+
+- PRD: `prds/security-audit-fixes-2026-04-18.md`
+- HIGH #2: `convex/discord.ts` — stripped Discord API response bodies from all four `ConvexError` throws. Server logs the body via `console.error`, client gets `{ code, status }` only. UI copy unchanged.
+- MEDIUM #3: `convex/http.ts` — approve / deny buttons now fail closed when `form.modRoleIds` is empty, requiring the Discord Administrator permission bit. When mod roles are set, the caller must carry one OR be a server admin.
+- MEDIUM #4: `convex/http.ts` — OAuth install callback redirects with stable opaque codes (`oauth_exchange_failed`, `oauth_register_failed`). Real error logged server-side. `src/pages/Settings.tsx` got two new friendly `errorMessage` cases.
+- MEDIUM #5: `convex/auditLog.ts` — added `sanitizeMetadata` that strips `body`, `response`, `responseBody`, `stack`, `error`, `rawError`, `raw` from the returned metadata object while preserving the `detail` string the UI shows.
+- LOW #6: `convex/http.ts` — dropped the `Access-Control-Allow-Origin: *` wildcard. `buildCorsHeaders()` now pins the origin to `process.env.SITE_URL` when set and omits the header otherwise. No browser ever hits these routes.
+- LOW #7: `convex/lib/access.ts` — owner email now reads from `process.env.OWNER_EMAIL` with `wayne@convex.dev` as the fallback. `.env.example` documents the new variable.
+- HIGH #1 (IDOR): no behavior change. Documented the intentional shared workspace tenancy model in `convex/lib/auth.ts` and `docs/setup-guide.md`. Follow-up noted in the PRD for when the allowlist widens.
+- `docs/setup-guide.md` — rewrote the "Admin access" section to cover the env-var owner, added a "Tenancy model and who can see what" subsection, and added `OWNER_EMAIL` to the Convex env table.
+- Verification: `npx tsc --noEmit -p convex/tsconfig.json`, `npx tsc --noEmit -p tsconfig.app.json`, `npx eslint convex/ src/` all clean.
+- Files touched: `convex/discord.ts`, `convex/http.ts`, `convex/auditLog.ts`, `convex/lib/access.ts`, `convex/lib/auth.ts`, `src/pages/Settings.tsx`, `.env.example`, `docs/setup-guide.md`, `prds/security-audit-fixes-2026-04-18.md`, `changelog.md`, `files.md`, `TASK.md`.
+
+### 2026-04-18 — Gitignore cleanup for AI configs + Convex security audit
+
+- Added `.cursor/`, `.claude/`, `.agents/`, `.codex/`, `.gemini/` to `.gitignore` so local AI assistant configs and skill caches stop shipping to GitHub.
+- Ran `git rm -r --cached .cursor .claude .agents` to untrack 160 previously committed files. Files remain on disk. Changes are staged, not committed, not pushed. Files still live in git history; noted that a `git filter-repo` rewrite is needed to scrub history if required.
+- Ran a full security audit of `convex/` following `.claude/skills/sec-check/SKILL.md`. No pre-auth exploits. Controls verified: Discord `/interactions` Ed25519 verify, OAuth state single-use with expiry, `botToken` stripped from public guild queries, `stripSecrets` in `guilds.ts`, no hardcoded secrets in `src/` or `.env.example`.
+- Findings logged to `changelog.md` under `## [Unreleased] > Security`:
+  - HIGH: IDOR across `forms.get`/`update`, `submissions.listForForm`/`setHidden`/`deleteSubmission`/`decide`/`postReply`, `guilds.updateRoutingDefaults`/`disconnect`/`listChannels`/`listRoles`, `auditLog.listForForm`, and every action in `convex/discord.ts`. Gated handlers only call `requireAllowedUser` / `requireAllowedWorkspaceUser` (email-suffix allowlist) and never check the caller against `guilds.installedByUserId` or a membership rule.
+  - HIGH: `convex/discord.ts` leaks Discord API response bodies (500 chars) into `ConvexError.body`, which reaches the browser.
+  - MEDIUM: `convex/http.ts:207-213` approve/deny allows anyone when `form.modRoleIds` is empty. Needs fail-closed semantics.
+  - MEDIUM: `convex/http.ts:497-502` reflects `err.message` into the OAuth install redirect URL.
+  - MEDIUM: `convex/auditLog.ts:25` returns `metadata: v.any()` without redacting Discord error snippets.
+  - LOW: CORS `*` on the interactions OPTIONS handler (`convex/http.ts:513-534`); fine for Discord server-to-server, tighten if a browser origin ever needs it.
+  - LOW: hardcoded `OWNER_EMAIL` and `@convex.dev` suffix in `convex/lib/access.ts`; move to env if the allowlist ever changes.
+- No application code changed in this session. Fixes deferred so each can land with focused tests.
+- Files touched: `.gitignore`, `changelog.md`, `files.md`, `TASK.md`.
+
 ### 2026-04-18 — Logout race fix, public docs, localhost to production guide
 
 - Fixed admins getting flashed to `/auth/denied` on sign-out. Root cause: `signOutNow()` clears the Convex auth token synchronously via `convex.clearAuth?.()`, but the Robel auth client's `onChange` (and therefore `isAuthenticated`) only flips after the async `auth.signOut()` round-trip. During that window, `api.users.access` refetches unauthenticated and returns `{ authenticated: false, allowed: false }`, and `src/components/auth/Protected.tsx` hit its `!access.allowed` branch before `!isAuthenticated`.

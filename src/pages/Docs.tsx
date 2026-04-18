@@ -334,6 +334,7 @@ npx convex env set JWKS '<generated jwks json>'
 npx convex env set AUTH_GITHUB_ID <github oauth client id>
 npx convex env set AUTH_GITHUB_SECRET <github oauth client secret>
 npx convex env set SITE_URL http://localhost:5173
+npx convex env set OWNER_EMAIL you@yourdomain.com
 \`\`\`
 
 For prod, repeat with \`--prod\` and a separate GitHub OAuth App:
@@ -342,8 +343,11 @@ For prod, repeat with \`--prod\` and a separate GitHub OAuth App:
 npx convex env set AUTH_GITHUB_ID <prod client id> --prod
 npx convex env set AUTH_GITHUB_SECRET <prod client secret> --prod
 npx convex env set SITE_URL ${PROD_SITE_URL} --prod
+npx convex env set OWNER_EMAIL you@yourdomain.com --prod
 npx @robelest/convex-auth --prod
 \`\`\`
+
+\`OWNER_EMAIL\` is optional. Unset falls back to the upstream owner (\`wayne@convex.dev\`); set it per deployment so the owner follows your team.
 
 **Gotchas**
 
@@ -372,15 +376,25 @@ Everyone else lands on \`/auth/denied\` with a one-shot sign out so the session 
 convex/lib/access.ts
 \`\`\`
 
-That file exports \`isAllowedEmail(email)\` and \`roleForEmail(email)\`. They read a domain match (\`@convex.dev\` in the current build) and a hardcoded owner email (\`wayne@convex.dev\`). Rewrite that file to change the rule.
+That file exports \`isAllowedEmail(email)\` and \`roleForEmail(email)\`. They read a domain match (\`@convex.dev\` in the current build) and an owner email pulled from the \`OWNER_EMAIL\` Convex env var, falling back to \`wayne@convex.dev\` when unset. Rewrite the file to change the domain rule. Set the env var to change the owner without touching code.
 
 **To add an admin for your own install**
 
 1. Open \`convex/lib/access.ts\`.
-2. Change \`ALLOWED_EMAIL_DOMAIN\` to your company domain, or swap the domain check for an explicit \`Set<string>\` of addresses.
-3. Change \`OWNER_EMAIL\` to the email that should be pinned as owner.
+2. Change \`ALLOWED_EMAIL_SUFFIX\` to your company domain, or swap the check for an explicit \`Set<string>\` of addresses.
+3. Set the owner via env on each deployment:
+
+\`\`\`bash
+npx convex env set OWNER_EMAIL you@yourdomain.com
+npx convex env set OWNER_EMAIL you@yourdomain.com --prod
+\`\`\`
+
 4. Save. \`npx convex dev\` hot reloads the backend.
 5. Have the new admin sign in with a matching email. \`users.upsertFromIdentity\` creates a \`users\` row stamped with the right role.
+
+**Tenancy model**
+
+Forge is a shared workspace. Every allowlisted user can read and edit every installed guild, form, and submission. The email allowlist IS the tenancy boundary. If you ever widen the allowlist beyond a trusted team, add a \`memberships\` table keyed on \`{ userId, guildId, role }\` and a \`requireGuildAccess(ctx, guildId)\` helper before shipping. See \`prds/security-audit-fixes-2026-04-18.md\`.
 
 **Files that depend on the rule**
 
@@ -419,7 +433,8 @@ That file exports \`isAllowedEmail(email)\` and \`roleForEmail(email)\`. They re
 | \`AUTH_GITHUB_SECRET\` | yes | GitHub OAuth App client secret |
 | \`JWT_PRIVATE_KEY\` | yes | Set by \`npx @robelest/convex-auth\` |
 | \`JWKS\` | yes | Set by \`npx @robelest/convex-auth\` |
-| \`SITE_URL\` | yes | Frontend base URL |
+| \`SITE_URL\` | yes | Frontend base URL. Also pins \`Access-Control-Allow-Origin\` on Discord preflights |
+| \`OWNER_EMAIL\` | no | Email mapped to \`role: "owner"\`. Defaults to the upstream owner when unset |
 | \`CONVEX_SITE_URL\` | auto | Auto-populated by Convex |
 
 Set the same keys on prod with \`--prod\`.`,
@@ -490,6 +505,7 @@ npx convex env set --prod AUTH_GITHUB_SECRET <prod github client secret>
 npx convex env set --prod JWT_PRIVATE_KEY "$(cat jwt-private-key.pem)"
 npx convex env set --prod JWKS "$(cat jwks.json)"
 npx convex env set --prod SITE_URL ${PROD_SITE_URL}
+npx convex env set --prod OWNER_EMAIL you@yourdomain.com
 \`\`\`
 
 Reuse the same \`JWT_PRIVATE_KEY\` and \`JWKS\` on dev and prod only if you want logged-in dev sessions to carry over. For a clean split, generate a fresh pair with \`npx @robelest/convex-auth\` and set those on prod only.

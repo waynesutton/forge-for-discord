@@ -80,7 +80,7 @@ export const listForForm = query({
         action: row.action,
         actorId: row.actorId,
         submissionId: row.submissionId,
-        metadata: row.metadata,
+        metadata: sanitizeMetadata(metadata),
         severity: (ERROR_ACTIONS.has(row.action) ? "error" : "info") as
           | "info"
           | "error",
@@ -92,3 +92,29 @@ export const listForForm = query({
     });
   },
 });
+
+// Strip fields that can leak raw upstream payloads (Discord error bodies,
+// stack traces, HTTP responses). The UI only reads a small set of
+// human-friendly fields; anything else stays server-side. Flagged in the
+// 2026-04-18 security audit (finding MEDIUM #5).
+const SENSITIVE_METADATA_FIELDS: ReadonlySet<string> = new Set([
+  "body",
+  "response",
+  "responseBody",
+  "stack",
+  "error",
+  "rawError",
+  "raw",
+]);
+
+function sanitizeMetadata(
+  metadata: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined {
+  if (!metadata) return undefined;
+  const safe: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(metadata)) {
+    if (SENSITIVE_METADATA_FIELDS.has(key)) continue;
+    safe[key] = value;
+  }
+  return safe;
+}

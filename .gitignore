@@ -39,6 +39,13 @@ packages/*/node_modules/
 # Convex generated code (regenerated on every `npx convex dev`)
 convex/_generated/
 
+# AI assistant config and skill caches (local only)
+.cursor/
+.claude/
+.agents/
+.codex/
+.gemini/
+
 
 
 

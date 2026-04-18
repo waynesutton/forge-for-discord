@@ -2,6 +2,18 @@
 // of these checks, which was easy to drift and gave the linter a
 // `duplicated-auth` finding. Centralizing here keeps the rule set (allowed
 // email, owner role, workspace user lookup) in one place.
+//
+// Tenancy model (documented here so future contributors do not re-open this
+// question). Forge is a shared workspace keyed on the email suffix in
+// `lib/access.ts`. Every allowlisted caller is a trusted peer and can read or
+// mutate every installed guild, form, and submission. The email allowlist IS
+// the tenancy boundary. The 2026-04-18 security audit flagged the absence of
+// per-user scoping as "HIGH IDOR", but the shared workspace is intentional
+// for this phase of the product. If the allowlist ever widens (open registration,
+// multi-team SSO, paid tenants), add a `memberships` table keyed on
+// `{ userId, guildId, role }` and a `requireGuildAccess(ctx, guildId)` helper
+// that every handler below calls before touching guild-scoped data. Keep the
+// helper in this file so the call sites stay one line.
 
 import { ConvexError } from "convex/values";
 import type {

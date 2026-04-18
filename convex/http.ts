@@ -204,11 +204,25 @@ http.route({
         return ephemeralResponse("This submission is no longer available.");
       }
 
+      // Fail closed. If the form has mod roles configured, the caller must
+      // carry one. If no mod roles are configured, we fall back to Discord's
+      // Administrator bit so server admins still moderate, but anyone else is
+      // rejected (previous behavior was "anyone can approve/deny when
+      // modRoleIds is empty", flagged by the 2026-04-18 audit).
       const modRoles = context.form.modRoleIds ?? [];
       const memberRoles = payload.member?.roles ?? [];
-      if (modRoles.length > 0 && !hasAnyRole(memberRoles, modRoles)) {
+      const isServerAdmin = hasAdministratorPermission(
+        payload.member?.permissions,
+      );
+      if (modRoles.length > 0) {
+        if (!hasAnyRole(memberRoles, modRoles) && !isServerAdmin) {
+          return ephemeralResponse(
+            "You do not have a mod role configured for this form.",
+          );
+        }
+      } else if (!isServerAdmin) {
         return ephemeralResponse(
-          "You do not have a mod role configured for this form.",
+          "Only server admins can moderate this form. Add a mod role on the form to open moderation to others.",
         );
       }
 
@@ -461,6 +475,9 @@ http.route({
       );
     }
 
+    // Two distinct error stages so we can return an opaque but useful code to
+    // the client without ever reflecting the raw message into the URL.
+    let stage: "exchange" | "register" = "exchange";
     try {
       const { guild } = await ctx.runAction(
         internal.discord.exchangeInstallCode,
@@ -477,6 +494,7 @@ http.route({
         );
       }
 
+      stage = "register";
       const guildId = await ctx.runMutation(
         internal.guilds.registerFromInstall,
         {
@@ -495,11 +513,10 @@ http.route({
         302,
       );
     } catch (err) {
-      const code = err instanceof Error ? err.message : "unknown";
-      return Response.redirect(
-        `${appUrl}/app/settings?error=${encodeURIComponent(code.slice(0, 64))}`,
-        302,
-      );
+      console.error("discord_install_callback_failed", { stage, err });
+      const code =
+        stage === "exchange" ? "oauth_exchange_failed" : "oauth_register_failed";
+      return Response.redirect(`${appUrl}/app/settings?error=${code}`, 302);
     }
   }),
 });
@@ -508,21 +525,33 @@ http.route({
 // an OPTIONS request (both `/interactions` and `/api/discord/install` are
 // server-to-browser-redirect flows), but convex-doctor wants the preflight
 // to exist so accidental fetches from a browser get a clean 405 for GET
-// and POST instead of a silent CORS failure. Keep origins restricted to
-// avoid turning this into an open proxy.
-const corsHeaders: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "Content-Type, X-Signature-Ed25519, X-Signature-Timestamp",
-  "Access-Control-Max-Age": "86400",
-};
+// and POST instead of a silent CORS failure. Pin the origin to the
+// configured SITE_URL when present. No wildcard fallback: the 2026-04-18
+// audit flagged `Access-Control-Allow-Origin: *` here as LOW risk since
+// Discord never uses the preflight, but we remove the wildcard so the
+// routes are never accidentally usable as an open proxy from another
+// origin. When SITE_URL is unset the preflight simply returns the method
+// list without an origin, which fails closed for browsers.
+function buildCorsHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers":
+      "Content-Type, X-Signature-Ed25519, X-Signature-Timestamp",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
+  const siteUrl = process.env.SITE_URL;
+  if (siteUrl) {
+    headers["Access-Control-Allow-Origin"] = siteUrl;
+  }
+  return headers;
+}
 
 http.route({
   path: "/interactions",
   method: "OPTIONS",
   handler: httpAction(async () => {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: buildCorsHeaders() });
   }),
 });
 
@@ -530,7 +559,7 @@ http.route({
   path: "/api/discord/install",
   method: "OPTIONS",
   handler: httpAction(async () => {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: buildCorsHeaders() });
   }),
 });
 
