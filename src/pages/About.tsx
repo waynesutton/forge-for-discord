@@ -31,12 +31,20 @@ import {
 
 // External URLs. Kept at the top so every CTA, pill, and colophon row
 // references the same string and future edits are a single change.
+const OG_IMAGE_PATH = "/forge-og-image.png";
+const OG_IMAGE_ALT =
+  "Forge, a self-hostable Discord form builder and approval engine built on Convex.";
+const ABOUT_OG_TITLE = "Forge — Discord form builder and approval engine";
+const ABOUT_OG_DESCRIPTION =
+  "Self-hostable Discord form builder and approval engine. Design forms in a browser, publish them as slash commands, route submissions through a mod queue, and ship approved answers to any text or forum channel.";
+
 const REPO_URL = "https://github.com/waynesutton/forge-for-discord";
 const REPO_FORK_URL = `${REPO_URL}/fork`;
 const PHOSPHOR_URL = "https://phosphoricons.com/";
 const CONVEX_URL = "https://www.convex.dev";
 const CONVEX_STATIC_HOSTING_URL = "https://www.convex.dev/components/static-hosting";
 const CONVEX_COMMUNITY_URL = "https://www.convex.dev/community";
+const CONVEX_AUTH_URL = "https://github.com/robelest/convex-auth/";
 const AUTHOR_X_URL = "https://x.com/waynesutton";
 const AUTHOR_LINKEDIN_URL = "https://www.linkedin.com/in/waynesutton/";
 const AUTHOR_GITHUB_URL = "https://github.com/waynesutton";
@@ -51,8 +59,96 @@ export function About() {
     const previousTitle = document.title;
     document.title = "Forge — About";
     window.scrollTo({ top: 0, behavior: "auto" });
+
+    // Override OG and Twitter metadata at runtime so JS-capable scrapers
+    // (Slack, Discord, LinkedIn, X) see About-specific copy plus the large
+    // social card image `/forge-og-image.png`. Static scrapers already get
+    // the same image from `index.html`. We snapshot each tag before editing
+    // so a navigation away from /about restores the original SPA metadata.
+    const ogImageAbsolute = new URL(OG_IMAGE_PATH, window.location.origin).toString();
+    const pageUrl = window.location.href;
+    const metaUpdates: ReadonlyArray<{
+      selector: string;
+      attr: "property" | "name";
+      key: string;
+      value: string;
+    }> = [
+      { selector: 'meta[property="og:title"]', attr: "property", key: "og:title", value: ABOUT_OG_TITLE },
+      {
+        selector: 'meta[property="og:description"]',
+        attr: "property",
+        key: "og:description",
+        value: ABOUT_OG_DESCRIPTION,
+      },
+      { selector: 'meta[property="og:image"]', attr: "property", key: "og:image", value: ogImageAbsolute },
+      {
+        selector: 'meta[property="og:image:alt"]',
+        attr: "property",
+        key: "og:image:alt",
+        value: OG_IMAGE_ALT,
+      },
+      { selector: 'meta[property="og:url"]', attr: "property", key: "og:url", value: pageUrl },
+      {
+        selector: 'meta[name="twitter:card"]',
+        attr: "name",
+        key: "twitter:card",
+        value: "summary_large_image",
+      },
+      {
+        selector: 'meta[name="twitter:title"]',
+        attr: "name",
+        key: "twitter:title",
+        value: ABOUT_OG_TITLE,
+      },
+      {
+        selector: 'meta[name="twitter:description"]',
+        attr: "name",
+        key: "twitter:description",
+        value: ABOUT_OG_DESCRIPTION,
+      },
+      {
+        selector: 'meta[name="twitter:image"]',
+        attr: "name",
+        key: "twitter:image",
+        value: ogImageAbsolute,
+      },
+      {
+        selector: 'meta[name="twitter:image:alt"]',
+        attr: "name",
+        key: "twitter:image:alt",
+        value: OG_IMAGE_ALT,
+      },
+      { selector: 'meta[name="description"]', attr: "name", key: "description", value: ABOUT_OG_DESCRIPTION },
+    ];
+
+    type Snapshot = { element: HTMLMetaElement; previous: string | null; created: boolean };
+    const snapshots: Array<Snapshot> = metaUpdates.map(({ selector, attr, key, value }) => {
+      let element = document.head.querySelector<HTMLMetaElement>(selector);
+      let created = false;
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(attr, key);
+        document.head.appendChild(element);
+        created = true;
+      }
+      const previous = element.getAttribute("content");
+      element.setAttribute("content", value);
+      return { element, previous, created };
+    });
+
     return () => {
       document.title = previousTitle;
+      for (const snapshot of snapshots) {
+        if (snapshot.created) {
+          snapshot.element.remove();
+          continue;
+        }
+        if (snapshot.previous === null) {
+          snapshot.element.removeAttribute("content");
+        } else {
+          snapshot.element.setAttribute("content", snapshot.previous);
+        }
+      }
     };
   }, []);
 
@@ -80,10 +176,18 @@ function HeroSection() {
     <section className="relative overflow-hidden">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-10 px-6 pt-20 pb-24 sm:px-10 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-40">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-surface)]">
-            <Lightning size={20} weight="fill" color="var(--color-accent)" />
-          </span>
-          <span className="text-sm font-semibold tracking-tight">Forge</span>
+          {/* Clicking the mark or the wordmark returns visitors to the landing page at /. */}
+          <Link
+            to="/"
+            aria-label="Forge home"
+            className="group inline-flex items-center gap-3 rounded-[var(--radius-window)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ink)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-surface)] transition-colors group-hover:border-[var(--color-ink)]">
+              <Lightning size={20} weight="fill" color="var(--color-accent)" />
+            </span>
+            <span className="text-sm font-semibold tracking-tight transition-colors group-hover:text-[var(--color-accent)]">
+              Forge
+            </span>
+          </Link>
           <span className="text-xs text-[var(--color-muted)]">/ about</span>
           <a
             href={REPO_URL}
@@ -222,7 +326,7 @@ function IntroSection() {
               className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
               GitHub
             </a>
-            , MIT licensed and self hostable on your own Convex project.
+            , Apache License 2.0 and self hostable on your own Convex project.
           </p>
         </div>
       </div>
@@ -629,7 +733,11 @@ function StackSection() {
             value="Convex queries, mutations, actions, crons"
             href={CONVEX_URL}
           />
-          <StackItem label="Auth" value="Convex Auth with GitHub OAuth" />
+          <StackItem
+            label="Auth"
+            value="Convex Auth with GitHub OAuth"
+            href={CONVEX_AUTH_URL}
+          />
           <StackItem
             label="Hosting"
             value="@convex-dev/static-hosting"

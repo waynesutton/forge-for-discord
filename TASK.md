@@ -106,6 +106,22 @@ Mirrors `prds/forge-prd_1.md` section 12. Check items off as they ship. Move com
 
 ## Completed
 
+### 2026-04-19 06:31 UTC — Large social card image for / and /about
+
+- Added `public/forge-og-image.png` (3024x1634) as the canonical social card for every share surface. Wired it into `index.html` by swapping `og:image` and `twitter:image` off `/favicon.svg` and onto `/forge-og-image.png`, upgrading `twitter:card` from `summary` to `summary_large_image`, and adding `og:image:type`, `og:image:width`, `og:image:height`, `og:image:alt`, and `twitter:image:alt`.
+- Extended the page-mount `useEffect` on `src/pages/About.tsx` to patch `og:title`, `og:description`, `og:image`, `og:image:alt`, `og:url`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:image:alt`, and the `description` meta tag at runtime so JS-capable scrapers see About-specific copy; the effect snapshots the previous value (or records that it created the tag) and restores on unmount so leaving `/about` does not leak About metadata onto other routes.
+- Added top-of-file constants `OG_IMAGE_PATH`, `OG_IMAGE_ALT`, `ABOUT_OG_TITLE`, and `ABOUT_OG_DESCRIPTION` so the index.html defaults and the runtime override read from one source of truth.
+- Verified with `npx tsc --noEmit -p tsconfig.app.json` (clean) and `ReadLints` on `src/pages/About.tsx` and `index.html` (both clean).
+- Files touched: `index.html`, `src/pages/About.tsx`, `public/forge-og-image.png` (new, untracked in git), `files.md`, `changelog.md`, `TASK.md`.
+
+### 2026-04-19 06:04 UTC — About page home link, Apache license, Convex Auth repo link
+
+- Wrapped the hero Lightning mark and the "Forge" wordmark on `src/pages/About.tsx` in a single `<Link to="/">` with `aria-label="Forge home"` and a `focus-visible` ring. Clicking either the icon or the word now returns visitors to the landing page. The `/ about` breadcrumb and the GitHub pill stay outside the link so only the logo is the home affordance.
+- Swapped the hero intro copy from "MIT licensed and self hostable" to "Apache License 2.0 and self hostable" so the top of the page matches the Colophon at the bottom and the upstream `@robelest/convex-auth` license.
+- Added a new top-of-file constant `CONVEX_AUTH_URL = "https://github.com/robelest/convex-auth/"` and threaded it through the Stack section `Auth` row so "Convex Auth with GitHub OAuth" is now a live link out to the upstream repo, consistent with the Backend, Hosting, Icons, and Source rows.
+- Verified with `ReadLints` on `src/pages/About.tsx` (clean).
+- Files touched: `src/pages/About.tsx`, `files.md`, `changelog.md`, `TASK.md`.
+
 ### 2026-04-19 03:02 UTC — Slash command debug logging and form unpublish
 
 - Context: slash command `/jobs` returned "This form is not published yet." on the live site while the admin UI clearly showed Published. Root cause traced earlier in the session to a deployment-mismatch (Discord Interactions Endpoint URL pointed at the dev Convex deployment instead of prod). User fixed the portal; this task is the follow-up hardening.

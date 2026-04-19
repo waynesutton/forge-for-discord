@@ -4,6 +4,34 @@ All notable changes to Forge. Format follows [keepachangelog.com](https://keepac
 
 ## [Unreleased]
 
+## 2026-04-19 06:31 UTC
+
+### Added
+
+- New canonical social card image at `public/forge-og-image.png` (3024x1634 PNG). (2026-04-19 06:31 UTC) Used by both `index.html` and `src/pages/About.tsx` as the `og:image` and `twitter:image` target so every share surface (Slack, Discord, LinkedIn, X, iMessage) renders a large preview instead of the old 32x32 favicon.
+
+### Changed
+
+- `index.html` now advertises a summary-large-image card. (2026-04-19 06:31 UTC) Swapped `og:image` and `twitter:image` from `/favicon.svg` to `/forge-og-image.png`, upgraded `twitter:card` from `summary` to `summary_large_image`, and added `og:image:type`, `og:image:width=3024`, `og:image:height=1634`, `og:image:alt`, and `twitter:image:alt`. Static scrapers pick these up without running JS.
+- `src/pages/About.tsx` patches OG and Twitter metadata at mount. (2026-04-19 06:31 UTC) The page-mount `useEffect` now overrides `og:title`, `og:description`, `og:image`, `og:image:alt`, `og:url`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:image:alt`, and the page `description` meta tag so JS-capable scrapers that crawl `/about` see About-specific copy and the large card image. The effect snapshots each tag's previous `content` (or records that it created the tag) and restores on unmount so the metadata does not leak to other SPA routes. New top-of-file constants `OG_IMAGE_PATH`, `OG_IMAGE_ALT`, `ABOUT_OG_TITLE`, and `ABOUT_OG_DESCRIPTION` keep the copy in one place.
+
+### Verification
+
+- `npx tsc --noEmit -p tsconfig.app.json` clean.
+- `ReadLints` on `index.html` and `src/pages/About.tsx` clean.
+
+## 2026-04-19 06:04 UTC
+
+### Changed
+
+- Hero of the public `/about` page now treats the Lightning mark and the "Forge" wordmark as a single clickable home link. (2026-04-19 06:04 UTC) Wrapped both in a `<Link to="/">` on `src/pages/About.tsx` with `aria-label="Forge home"` and a `focus-visible` ring so keyboard users get the same affordance as mouse users. The `/ about` breadcrumb and the "Open source on GitHub" pill stay outside the link so only the logo acts as the home button.
+- Hero intro copy on `/about` now reads "Apache License 2.0 and self hostable on your own Convex project" instead of "MIT licensed...". The repo ships Apache-2.0 and the Colophon at the bottom of the page already said so, so the top of the page was the odd one out.
+- Stack section `Auth` row on `/about` is now a link. New top-of-file constant `CONVEX_AUTH_URL = "https://github.com/robelest/convex-auth/"` powers the `StackItem` `href`, so "Convex Auth with GitHub OAuth" points at the upstream fork Forge actually ships with, matching the Backend, Hosting, Icons, and Source rows.
+
+### Verification
+
+- `ReadLints` on `src/pages/About.tsx` clean.
+
 ## 2026-04-19 03:02 UTC
 
 ### Added
