@@ -24,7 +24,7 @@
 
     <!-- Header row -->
     <text x="112" y="190" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#151515" letter-spacing="-0.5">Results</text>
-    <text x="112" y="218" font-family="Inter, sans-serif" font-size="14" fill="#676565">142 submissions &middot; 118 approved &middot; 24 denied</text>
+    <text x="112" y="218" font-family="Inter, sans-serif" font-size="14" fill="#676565">142 submissions · 118 approved · 24 denied</text>
 
     <!-- Toolbar -->
     <rect x="1060" y="172" width="140" height="38" rx="8" fill="#ffffff" stroke="#d6d3c7"/>
@@ -49,10 +49,10 @@
     <text x="292" y="342" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">@priya</text>
     <text x="292" y="362" font-family="Inter, sans-serif" font-size="12" fill="#676565">priya@convex.dev</text>
     <text x="552" y="342" font-family="Inter, sans-serif" font-size="14" fill="#151515">I build with Convex every day and</text>
-    <text x="552" y="362" font-family="Inter, sans-serif" font-size="13" fill="#676565">want to contribute to the community&hellip;</text>
+    <text x="552" y="362" font-family="Inter, sans-serif" font-size="13" fill="#676565">want to contribute to the community…</text>
     <text x="1060" y="342" font-family="Inter, sans-serif" font-size="13" fill="#151515">Today 14:28</text>
     <text x="1060" y="362" font-family="Inter, sans-serif" font-size="12" fill="#676565">by @wayne</text>
-    <text x="1260" y="345" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#151515">Reply &middot; Hide &middot; Delete</text>
+    <text x="1260" y="345" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#151515">Reply · Hide · Delete</text>
 
     <!-- Row 2 pending -->
     <rect x="112" y="388" width="1296" height="72" rx="8" fill="#ffffff" stroke="#e3e0d3"/>
@@ -61,7 +61,7 @@
     <text x="292" y="426" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">@jordan</text>
     <text x="292" y="446" font-family="Inter, sans-serif" font-size="12" fill="#676565">jordan@convex.dev</text>
     <text x="552" y="426" font-family="Inter, sans-serif" font-size="14" fill="#151515">Found a bug reproducing on 1.25.0</text>
-    <text x="552" y="446" font-family="Inter, sans-serif" font-size="13" fill="#676565">with code fence attached in field 3&hellip;</text>
+    <text x="552" y="446" font-family="Inter, sans-serif" font-size="13" fill="#676565">with code fence attached in field 3…</text>
     <text x="1060" y="426" font-family="Inter, sans-serif" font-size="13" fill="#151515">Today 14:10</text>
     <rect x="1260" y="406" width="76" height="32" rx="6" fill="#2d8e64"/>
     <text x="1298" y="426" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#ffffff" text-anchor="middle">Approve</text>
@@ -78,7 +78,7 @@
     <text x="552" y="530" font-family="Inter, sans-serif" font-size="13" fill="#676565">to audit log and DMed to submitter.</text>
     <text x="1060" y="510" font-family="Inter, sans-serif" font-size="13" fill="#151515">Yesterday 18:02</text>
     <text x="1060" y="530" font-family="Inter, sans-serif" font-size="12" fill="#676565">by @wayne</text>
-    <text x="1260" y="513" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#151515">Reply &middot; Hide &middot; Delete</text>
+    <text x="1260" y="513" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#151515">Reply · Hide · Delete</text>
 
     <!-- Row 4 ticket -->
     <rect x="112" y="556" width="1296" height="72" rx="8" fill="#ffffff" stroke="#e3e0d3"/>
@@ -86,10 +86,10 @@
     <text x="180" y="597" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#f54e00" text-anchor="middle">In progress</text>
     <text x="292" y="594" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">@kay</text>
     <text x="292" y="614" font-family="Inter, sans-serif" font-size="12" fill="#676565">kay@convex.dev</text>
-    <text x="552" y="594" font-family="Inter, sans-serif" font-size="14" fill="#151515">Ticket &middot; claimed by @wayne</text>
+    <text x="552" y="594" font-family="Inter, sans-serif" font-size="14" fill="#151515">Ticket · claimed by @wayne</text>
     <text x="552" y="614" font-family="Inter, sans-serif" font-size="13" fill="#676565">Last activity 14 min ago in #support</text>
     <text x="1060" y="594" font-family="Inter, sans-serif" font-size="13" fill="#151515">Today 13:01</text>
-    <text x="1260" y="597" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#151515">Reply &middot; Open thread</text>
+    <text x="1260" y="597" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#151515">Reply · Open thread</text>
 
     <!-- Row 5 hidden -->
     <rect x="112" y="640" width="1296" height="72" rx="8" fill="#fafbf4" stroke="#e3e0d3" stroke-dasharray="4 4"/>
@@ -98,14 +98,14 @@
     <text x="292" y="678" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#676565">@spam</text>
     <text x="552" y="678" font-family="Inter, sans-serif" font-size="14" fill="#676565">Hidden from results, kept in audit log</text>
     <text x="1060" y="678" font-family="Inter, sans-serif" font-size="13" fill="#676565">Today 09:14</text>
-    <text x="1260" y="681" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#676565">Unhide &middot; Delete</text>
+    <text x="1260" y="681" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#676565">Unhide · Delete</text>
 
     <!-- Reply composer at bottom -->
     <rect x="112" y="740" width="1296" height="140" rx="10" fill="#fafbf4" stroke="#e3e0d3"/>
     <text x="132" y="770" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#676565" letter-spacing="1">REPLY IN DISCORD</text>
     <rect x="132" y="784" width="1104" height="76" rx="8" fill="#ffffff" stroke="#d6d3c7"/>
     <text x="148" y="810" font-family="Inter, sans-serif" font-size="13" fill="#151515">Thanks for submitting, @priya. We will be in touch this week with next steps.</text>
-    <text x="148" y="834" font-family="Inter, sans-serif" font-size="12" fill="#676565">Posts as Forge bot in the thread &middot; no pings</text>
+    <text x="148" y="834" font-family="Inter, sans-serif" font-size="12" fill="#676565">Posts as Forge bot in the thread · no pings</text>
     <rect x="1260" y="796" width="132" height="52" rx="8" fill="#f54e00"/>
     <text x="1326" y="826" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#ffffff" text-anchor="middle">Send reply</text>
   </g>

@@ -26,7 +26,7 @@
 
     <!-- Header row -->
     <text x="112" y="188" font-family="Inter, sans-serif" font-size="26" font-weight="700" fill="#151515" letter-spacing="-0.5">Applications</text>
-    <text x="112" y="216" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#676565">/apply &middot; 6 fields &middot; Published</text>
+    <text x="112" y="216" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#676565">/apply · 6 fields · Published</text>
 
     <!-- Top action buttons -->
     <rect x="1180" y="170" width="120" height="38" rx="8" fill="#ffffff" stroke="#d6d3c7"/>
@@ -75,21 +75,21 @@
     <rect x="588" y="320" width="48" height="22" rx="11" fill="#eeefe7"/>
     <text x="612" y="335" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#676565" text-anchor="middle">short</text>
     <text x="648" y="336" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">Your Discord handle</text>
-    <text x="588" y="368" font-family="Inter, sans-serif" font-size="12" fill="#676565">Required &middot; max 32 chars</text>
+    <text x="588" y="368" font-family="Inter, sans-serif" font-size="12" fill="#676565">Required · max 32 chars</text>
 
     <!-- Field card 2 -->
     <rect x="572" y="408" width="432" height="92" rx="8" fill="#fafbf4" stroke="#e3e0d3"/>
     <rect x="588" y="424" width="48" height="22" rx="11" fill="#fff0e6"/>
     <text x="612" y="439" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#f54e00" text-anchor="middle">email</text>
     <text x="648" y="440" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">Contact email</text>
-    <text x="588" y="472" font-family="Inter, sans-serif" font-size="12" fill="#676565">Private &middot; hidden from public channel</text>
+    <text x="588" y="472" font-family="Inter, sans-serif" font-size="12" fill="#676565">Private · hidden from public channel</text>
 
     <!-- Field card 3 -->
     <rect x="572" y="512" width="432" height="92" rx="8" fill="#fafbf4" stroke="#e3e0d3"/>
     <rect x="588" y="528" width="72" height="22" rx="11" fill="#eeefe7"/>
     <text x="624" y="543" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#676565" text-anchor="middle">paragraph</text>
     <text x="672" y="544" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">Why do you want to join</text>
-    <text x="588" y="576" font-family="Inter, sans-serif" font-size="12" fill="#676565">Required &middot; max 400 chars</text>
+    <text x="588" y="576" font-family="Inter, sans-serif" font-size="12" fill="#676565">Required · max 400 chars</text>
 
     <!-- Field card 4 -->
     <rect x="572" y="616" width="432" height="92" rx="8" fill="#fafbf4" stroke="#e3e0d3"/>
@@ -103,7 +103,7 @@
     <rect x="588" y="736" width="60" height="22" rx="11" fill="#eeefe7"/>
     <text x="618" y="751" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#676565" text-anchor="middle">number</text>
     <text x="660" y="752" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#151515">Hours per week</text>
-    <text x="588" y="784" font-family="Inter, sans-serif" font-size="12" fill="#676565">min 1 &middot; max 40</text>
+    <text x="588" y="784" font-family="Inter, sans-serif" font-size="12" fill="#676565">min 1 · max 40</text>
 
     <!-- Right pane: Discord preview -->
     <rect x="1044" y="248" width="460" height="640" rx="10" fill="#2b2d31" stroke="#1f2024"/>
@@ -125,7 +125,7 @@
     <text x="1088" y="530" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#b5bac1" letter-spacing="0.5">WHY DO YOU WANT TO JOIN *</text>
     <rect x="1088" y="540" width="372" height="110" rx="3" fill="#1e1f22" stroke="#26272b"/>
     <text x="1104" y="565" font-family="Inter, sans-serif" font-size="14" fill="#b5bac1">I build with Convex every day and want</text>
-    <text x="1104" y="585" font-family="Inter, sans-serif" font-size="14" fill="#b5bac1">to ship my first Discord bot using Forge&hellip;</text>
+    <text x="1104" y="585" font-family="Inter, sans-serif" font-size="14" fill="#b5bac1">to ship my first Discord bot using Forge…</text>
 
     <text x="1088" y="674" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#b5bac1" letter-spacing="0.5">HOURS PER WEEK *</text>
     <rect x="1088" y="684" width="372" height="40" rx="3" fill="#1e1f22" stroke="#26272b"/>

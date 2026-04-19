@@ -106,6 +106,16 @@ Mirrors `prds/forge-prd_1.md` section 12. Check items off as they ship. Move com
 
 ## Completed
 
+### 2026-04-18 — Mark hosted Forge as internal Convex app
+
+- Removed every "sign in" CTA from `src/pages/About.tsx` (hero "Sign in with GitHub" + closing "Sign in to Forge") and added an `InternalAppNotice` card in the hero explaining that sign in on the hosted deployment is locked to `@convex.dev` emails and pointing visitors at the fork + docs path. Primary CTA is now "Fork the repo" (deep-links to `/fork`), backed by the setup guide and the Convex community.
+- Added a `Colophon` section at the bottom of `/about`: "Created by Wayne with Convex, Cursor, and Claude Opus 4.7. Connect on Twitter/X, LinkedIn, and GitHub." plus "This project is licensed under the Apache License 2.0." with linked Phosphor social pills for X, LinkedIn, GitHub, and the Convex community Discord.
+- Wired the Stack section links to `convex.dev` (Backend) and `convex.dev/components/static-hosting` (Hosting). Centralised every external URL at the top of `About.tsx`.
+- Updated the sign-in footer in `src/components/auth/SignIn.tsx`: attribution now reads "For Discord servers built with Convex." and the right side is a three-icon row pointing at `/docs`, the public repo, and the Convex community Discord so visitors who cannot sign in still have three ways to explore the project.
+- Added an internal-app callout paragraph to `docs/setup-guide.md` (right after the opening intro) and to the overview section of `src/pages/Docs.tsx` so the in-app and on-disk docs both state the hosted instance is Convex-team only and the reader should fork + self host.
+- Files touched: `src/pages/About.tsx`, `src/components/auth/SignIn.tsx`, `docs/setup-guide.md`, `src/pages/Docs.tsx`, `files.md`, `changelog.md`, `TASK.md`.
+- Verification: `npx tsc --noEmit -p tsconfig.app.json` clean. `ReadLints` on the edited files clean.
+
 ### 2026-04-18 — Static hosting deploy fix (generateUploadUrls)
 
 - `npx @convex-dev/static-hosting deploy` was failing on the upload step with "Could not find function for 'staticHosting:generateUploadUrls'". The 0.1.3 CLI calls the batched plural functions (`generateUploadUrls`, `recordAssets`) but `convex/staticHosting.ts` was still using the old README snippet that only destructured four singular functions.
@@ -120,6 +130,13 @@ Mirrors `prds/forge-prd_1.md` section 12. Check items off as they ship. Move com
 - Added the About link on the homepage only, inline next to "For Convex by Convex." in `src/components/auth/SignIn.tsx`. No other surface links to About.
 - Verified with `npx tsc --noEmit -p tsconfig.app.json` and `ReadLints`. Both clean.
 - Files touched: `src/pages/About.tsx` (new), `public/about/builder.svg` (new), `public/about/queue.svg` (new), `public/about/ticket.svg` (new), `public/about/results.svg` (new), `src/App.tsx`, `src/components/auth/SignIn.tsx`, `files.md`, `changelog.md`, `TASK.md`.
+
+### 2026-04-18 — /about SVG fix + open source links
+
+- Replaced the HTML-only entities `&middot;`, `&hellip;`, `&rarr;` with Unicode characters inside `public/about/builder.svg`, `public/about/queue.svg`, `public/about/ticket.svg`, and `public/about/results.svg`. SVG is strict XML so browsers were refusing to parse the files, which is why the hero builder image rendered as a broken icon with just the alt text. Verified with `xmllint --noout`.
+- Added open source messaging plus links to `https://github.com/waynesutton?tab=repositories` and `https://phosphoricons.com/` across `src/pages/About.tsx`: hero "Open source on GitHub" pill, hero "View the repo" CTA, intro paragraph GitHub line, linked Phosphor Icons row and new "Source" row in the stack table, and a "Star it on GitHub" button in the closing CTA.
+- Verification: `ReadLints` on `src/pages/About.tsx` clean.
+- Files touched: `public/about/builder.svg`, `public/about/queue.svg`, `public/about/ticket.svg`, `public/about/results.svg`, `src/pages/About.tsx`, `changelog.md`, `TASK.md`.
 
 ### 2026-04-18 23:20 UTC — Docs: OWNER_EMAIL commands in every setup block
 

@@ -4,6 +4,7 @@ import {
   BookOpen,
   GithubLogo,
   CircleNotch,
+  DiscordLogo,
   Lightning,
   SlidersHorizontal,
   CheckSquare,
@@ -14,6 +15,12 @@ import {
   ChatCircleText,
 } from "@phosphor-icons/react";
 import { useAuth } from "../../hooks/useAuth";
+
+// External URLs shown on the landing page footer row so visitors who land on
+// the sign-in screen can still reach the source and community without
+// authenticating.
+const REPO_URL = "https://github.com/waynesutton/forge-for-discord";
+const CONVEX_COMMUNITY_URL = "https://www.convex.dev/community";
 
 // Single-screen sign-in. Phase 1 only supports GitHub OAuth; additional providers
 // are wired from convex/auth.ts and land on this screen without markup changes.
@@ -54,7 +61,7 @@ export function SignIn() {
 
           <div className="flex flex-col gap-6 px-8 py-8">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-bg)]">
+              <span className="flex aspect-square h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-bg)]">
                 <Lightning size={20} weight="fill" color="var(--color-accent)" />
               </span>
               <div>
@@ -88,28 +95,34 @@ export function SignIn() {
               </p>
             ) : null}
 
-            <div className="flex items-center justify-between border-t border-[var(--color-border)] pt-4">
+            {/* Footer row. Left side carries the attribution plus the About
+                link for visitors who want the marketing story. Right side is
+                an icon row pointing to the setup guide, the public repo, and
+                the Convex community Discord so anyone who cannot sign in
+                (this hosted instance is team-only) can still explore the
+                project. */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-4">
               <p className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
-                <span>For Convex by Convex.</span>
-                {/* About page link. Only rendered on the public homepage so
-                    signed-out visitors can read the marketing story before
-                    requesting access. Kept inline with the attribution so it
-                    reads as a single footnote rather than a nav item. */}
+                <span>For Discord servers built with Convex.</span>
                 <Link
                   to="/about"
                   className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
                   About
                 </Link>
               </p>
-              {/* Public docs link. Same route a logged-in admin sees, so
-                  anyone evaluating Forge can read the setup guide before
-                  requesting access. */}
-              <Link
-                to="/docs"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
-                <BookOpen size={14} weight="bold" aria-hidden />
-                <span>Read the setup guide</span>
-              </Link>
+              <div className="flex items-center gap-1">
+                <LandingIconLink to="/docs" label="Read the setup guide">
+                  <BookOpen size={14} weight="bold" aria-hidden />
+                </LandingIconLink>
+                <LandingIconLink href={REPO_URL} label="View Forge on GitHub">
+                  <GithubLogo size={14} weight="bold" aria-hidden />
+                </LandingIconLink>
+                <LandingIconLink
+                  href={CONVEX_COMMUNITY_URL}
+                  label="Join the Convex community Discord">
+                  <DiscordLogo size={14} weight="fill" aria-hidden />
+                </LandingIconLink>
+              </div>
             </div>
           </div>
         </section>
@@ -167,5 +180,41 @@ function FeatureRow({ icon, label }: { icon: React.ReactNode; label: string }) {
       </span>
       <span>{label}</span>
     </li>
+  );
+}
+
+// Icon-only pill used in the sign-in card footer. Accepts either a
+// react-router `to` (internal) or an external `href`. aria-label carries the
+// accessible name because the visible content is only an icon.
+function LandingIconLink({
+  to,
+  href,
+  label,
+  children,
+}: {
+  to?: string;
+  href?: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  const className =
+    "flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]";
+  if (to) {
+    return (
+      <Link to={to} aria-label={label} title={label} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
+      className={className}>
+      {children}
+    </a>
   );
 }

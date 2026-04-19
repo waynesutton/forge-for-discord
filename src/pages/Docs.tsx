@@ -48,7 +48,9 @@ Forge is a self-hostable Discord form builder and approval engine. Design forms 
 
 One Convex deployment holds everything: backend, frontend, file storage, auth, cron. No separate worker. No webhook server. Discord posts to \`/interactions\` on your Convex site URL, Ed25519 verifies, writes land in the dashboard instantly.
 
-Admins use the dashboard. Submitters never leave Discord.`,
+Admins use the dashboard. Submitters never leave Discord.
+
+> Internal app note: the repo at https://github.com/waynesutton/forge-for-discord is the same code that runs Convex's internal Forge instance. Sign in on that hosted deployment is locked to \`@convex.dev\` emails and will reject anyone else. To run Forge for your own Discord server, fork the repo, deploy your own Convex project, and follow this guide end to end.`,
   },
   {
     slug: "features",
@@ -646,6 +648,7 @@ Wire \`<UpdateBanner>\` from \`@convex-dev/static-hosting/react\` against the \`
     summary: "Upstream docs and repo files worth bookmarking.",
     markdown: `## References
 
+- Forge source code: https://github.com/waynesutton/forge-for-discord
 - Discord developer portal: https://discord.com/developers/applications
 - Discord bots overview: https://docs.discord.com/developers/bots/overview
 - Discord developer reference: https://docs.discord.com/developers/reference

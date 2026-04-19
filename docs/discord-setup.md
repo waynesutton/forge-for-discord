@@ -218,6 +218,7 @@ After you authorize the bot, run this quick checklist:
 
 ## References
 
+- Forge source code: https://github.com/waynesutton/forge-for-discord
 - Discord developer portal: https://discord.com/developers/applications
 - Discord interactions guide: https://docs.discord.com/developers/guides/bots
 - Discord permission bitmask reference: https://discord.com/developers/docs/topics/permissions

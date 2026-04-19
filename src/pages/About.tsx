@@ -1,19 +1,23 @@
 import { useEffect } from "react";
 import { Link } from "react-router";
 import {
-  ArrowRight,
   ArrowUpRight,
   ChatCircleText,
   CheckSquare,
   ClipboardText,
   Code,
   Copy,
+  DiscordLogo,
   Envelope,
   Export,
   FileText,
+  GitFork,
+  GithubLogo,
   Hash,
   Hammer,
+  Info,
   Lightning,
+  LinkedinLogo,
   ListChecks,
   LockKey,
   PaperPlaneTilt,
@@ -22,7 +26,20 @@ import {
   Ticket,
   Timer,
   UsersThree,
+  XLogo,
 } from "@phosphor-icons/react";
+
+// External URLs. Kept at the top so every CTA, pill, and colophon row
+// references the same string and future edits are a single change.
+const REPO_URL = "https://github.com/waynesutton/forge-for-discord";
+const REPO_FORK_URL = `${REPO_URL}/fork`;
+const PHOSPHOR_URL = "https://phosphoricons.com/";
+const CONVEX_URL = "https://www.convex.dev";
+const CONVEX_STATIC_HOSTING_URL = "https://www.convex.dev/components/static-hosting";
+const CONVEX_COMMUNITY_URL = "https://www.convex.dev/community";
+const AUTHOR_X_URL = "https://x.com/waynesutton";
+const AUTHOR_LINKEDIN_URL = "https://www.linkedin.com/in/waynesutton/";
+const AUTHOR_GITHUB_URL = "https://github.com/waynesutton";
 
 // Public marketing page for Forge. Lives at /about. No header, no footer.
 // Paper.design inspired: huge display type, stacked feature blocks, and
@@ -50,23 +67,39 @@ export function About() {
       <ResultsSection />
       <StackSection />
       <CtaSection />
+      <Colophon />
     </main>
   );
 }
 
-// Top of the page. Huge display headline, short subtitle, mark logo.
-// Generous vertical space mimics paper.design's opening move.
+// Top of the page. Huge display headline, short subtitle, mark logo, and the
+// internal-app alert that tells visitors this hosted instance is Convex team
+// only. Generous vertical space mimics paper.design's opening move.
 function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-6 pt-20 pb-24 sm:px-10 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-40">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-10 px-6 pt-20 pb-24 sm:px-10 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-40">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-window)] border border-[var(--color-border)] bg-[var(--color-surface)]">
             <Lightning size={20} weight="fill" color="var(--color-accent)" />
           </span>
           <span className="text-sm font-semibold tracking-tight">Forge</span>
           <span className="text-xs text-[var(--color-muted)]">/ about</span>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-xs font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]">
+            <GithubLogo size={12} weight="bold" aria-hidden />
+            <span>Open source on GitHub</span>
+          </a>
         </div>
+
+        {/* Internal-app notice. Sign in is locked to @convex.dev emails in
+            convex/lib/access.ts, so the hosted instance rejects anyone outside
+            the team. The alert points everyone else at the fork-and-deploy
+            path before they click a CTA they can't use. */}
+        <InternalAppNotice />
 
         <h1 className="max-w-[18ch] text-[11vw] leading-[0.95] font-semibold tracking-[-0.03em] sm:text-[88px] sm:leading-[0.92] lg:text-[132px] lg:leading-[0.9]">
           Build Discord forms that don{"\u2019"}t feel like forms.
@@ -74,28 +107,87 @@ function HeroSection() {
 
         <div className="grid max-w-5xl gap-8 lg:grid-cols-[1.2fr_1fr]">
           <p className="text-xl leading-relaxed text-[var(--color-ink)] sm:text-2xl">
-            Forge is a self hostable form builder and approval engine for Discord
-            servers. Design forms in a browser. Publish them as slash commands.
-            Route submissions through a mod queue. Publish approved answers into
-            any text or forum channel. One Convex deployment, end to end.
+            Forge is a self hostable, open source form builder and approval engine for Discord
+            servers. Design forms in a browser. Publish them as slash commands. Route submissions
+            through a mod queue. Publish approved answers into any text or forum channel. One{" "}
+            <a
+              href={CONVEX_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+              Convex
+            </a>{" "}
+            deployment, end to end.
           </p>
           <div className="flex flex-col justify-end gap-3">
-            <Link
-              to="/"
+            <a
+              href={REPO_FORK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="group inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-ink)] bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-surface)] shadow-[var(--shadow-window)] transition-transform duration-150 active:translate-y-px">
-              Sign in with GitHub
-              <ArrowRight size={16} weight="bold" />
-            </Link>
+              <GitFork size={16} weight="bold" aria-hidden />
+              Fork the repo
+              <ArrowUpRight size={16} weight="bold" />
+            </a>
             <Link
               to="/docs"
               className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]">
               Read the setup guide
               <ArrowUpRight size={16} weight="bold" />
             </Link>
+            <a
+              href={CONVEX_COMMUNITY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]">
+              <DiscordLogo size={16} weight="fill" aria-hidden />
+              Join the Convex community
+              <ArrowUpRight size={16} weight="bold" />
+            </a>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+// Accent-bordered card that surfaces the access constraint before anyone
+// tries to sign in. Lives in the hero so it is the first block of text after
+// the page eyebrow. Copy is deliberately plain: who this hosted instance is
+// for, why sign in won't work, and what to do instead.
+function InternalAppNotice() {
+  return (
+    <aside
+      role="note"
+      aria-label="Cloud version limited to Convex team only"
+      className="flex max-w-4xl flex-col gap-3 rounded-[20px] border border-[var(--color-accent)] bg-[var(--color-surface)] p-5 sm:flex-row sm:items-start sm:gap-4 sm:p-6">
+      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-[var(--color-accent)] bg-[var(--color-bg)] text-[var(--color-accent)]">
+        <Info size={18} weight="fill" aria-hidden />
+      </span>
+      <div className="flex flex-col gap-1.5 text-sm leading-relaxed text-[var(--color-ink)]">
+        <p className="text-base font-semibold tracking-tight">
+          Cloud version limited to Convex team only.
+        </p>
+        <p className="text-[var(--color-muted)]">
+          Sign in on this deployment is locked to the Convex team and will not work for anyone else.
+          To run Forge on your own Discord server,{" "}
+          <a
+            href={REPO_FORK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-accent)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+            fork the repo
+          </a>{" "}
+          and follow the{" "}
+          <Link
+            to="/docs"
+            className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-accent)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+            setup guide
+          </Link>{" "}
+          to stand up your own Convex deployment.
+        </p>
+      </div>
+    </aside>
   );
 }
 
@@ -115,14 +207,22 @@ function IntroSection() {
         </div>
         <div className="flex flex-col gap-6 text-lg leading-relaxed text-[var(--color-ink)]">
           <p>
-            Forge is for teams who already live inside Discord. Applications,
-            bug bounties, support tickets, internal requests, anything you
-            would otherwise wire up with three bots and a spreadsheet.
+            Forge is for teams who already live inside Discord. Applications, bug bounties, support
+            tickets, internal requests, anything you would otherwise wire up with three bots and a
+            spreadsheet.
           </p>
           <p className="text-[var(--color-muted)]">
-            Forge replaces the Google Form plus Zapier plus mod bot stack with
-            one Convex deployment. No worker process. No webhook server. No
-            polling. Submit, review, publish, resolve, all in the same place.
+            Forge replaces the Google Form plus Zapier plus mod bot stack with one Convex
+            deployment. No worker process. No webhook server. No polling. Submit, review, publish,
+            resolve, all in the same place. The full source lives on{" "}
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+              GitHub
+            </a>
+            , MIT licensed and self hostable on your own Convex project.
           </p>
         </div>
       </div>
@@ -146,10 +246,9 @@ function BuilderSection() {
             </h2>
           </div>
           <p className="self-end text-lg leading-relaxed text-[var(--color-ink)]">
-            Drag, drop, rename, reorder. Eight field types cover the real shape
-            of a Discord modal: short text, paragraph, email, code block, single
-            select, yes or no, checkbox, and number with min, max, and a
-            currency unit label. A live preview mirrors exactly what your users
+            Drag, drop, rename, reorder. Eight field types cover the real shape of a Discord modal:
+            short text, paragraph, email, code block, single select, yes or no, checkbox, and number
+            with min, max, and a currency unit label. A live preview mirrors exactly what your users
             will see when the slash command fires.
           </p>
         </div>
@@ -224,10 +323,9 @@ function DiscordSection() {
             </h2>
           </div>
           <p className="self-end text-lg leading-relaxed text-[#dbdee1]">
-            Every submission lands in a mod queue channel with real buttons.
-            Approve posts the answer to the destination channel or forum thread.
-            Deny opens a reason modal and DMs the submitter. The embed rewrites
-            itself so the next moderator knows who decided what.
+            Every submission lands in a mod queue channel with real buttons. Approve posts the
+            answer to the destination channel or forum thread. Deny opens a reason modal and DMs the
+            submitter. The embed rewrites itself so the next moderator knows who decided what.
           </p>
         </div>
 
@@ -283,8 +381,8 @@ function FeatureIndex() {
             </h2>
           </div>
           <p className="self-end text-lg leading-relaxed text-[var(--color-muted)]">
-            Not a wishlist. Everything here ships in the current build and is
-            wired into the dashboard at the moment a new admin signs in.
+            Not a wishlist. Everything here ships in the current build and is wired into the
+            dashboard at the moment a new admin signs in.
           </p>
         </div>
 
@@ -451,10 +549,9 @@ function TicketSection() {
             </h2>
           </div>
           <p className="self-end text-lg leading-relaxed text-[var(--color-ink)]">
-            Claim buttons assign a moderator. Resolve closes the loop. Close
-            archives the forum thread. Reopen brings it back. Every lifecycle
-            change refreshes the embed footer, writes an audit row, and keeps
-            the dashboard in lock step.
+            Claim buttons assign a moderator. Resolve closes the loop. Close archives the forum
+            thread. Reopen brings it back. Every lifecycle change refreshes the embed footer, writes
+            an audit row, and keeps the dashboard in lock step.
           </p>
         </div>
 
@@ -485,10 +582,9 @@ function ResultsSection() {
             </h2>
           </div>
           <p className="self-end text-lg leading-relaxed text-[var(--color-ink)]">
-            Every submission in one table. Status pills, copy buttons on every
-            value, per row Hide and Delete, Approve and Deny on pending rows
-            when approval is on, a dashed soft hide row for spam, CSV and PDF
-            export, and a bot authored Reply in Discord composer that posts
+            Every submission in one table. Status pills, copy buttons on every value, per row Hide
+            and Delete, Approve and Deny on pending rows when approval is on, a dashed soft hide row
+            for spam, CSV and PDF export, and a bot authored Reply in Discord composer that posts
             back into the published thread.
           </p>
         </div>
@@ -520,39 +616,62 @@ function StackSection() {
             </h2>
           </div>
           <p className="self-end text-lg leading-relaxed text-[#b5bac1]">
-            Built for full stack developers who want one deployment and
-            reactive subscriptions instead of polling. Submit a form in Discord
-            and watch the row appear in the dashboard as it lands.
+            Built for full stack developers who want one deployment and reactive subscriptions
+            instead of polling. Submit a form in Discord and watch the row appear in the dashboard
+            as it lands.
           </p>
         </div>
 
         <div className="grid gap-x-16 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
           <StackItem label="Frontend" value="React 19, Vite 6, Tailwind v4, React Router 7" />
-          <StackItem label="Backend" value="Convex queries, mutations, actions, crons" />
+          <StackItem
+            label="Backend"
+            value="Convex queries, mutations, actions, crons"
+            href={CONVEX_URL}
+          />
           <StackItem label="Auth" value="Convex Auth with GitHub OAuth" />
-          <StackItem label="Hosting" value="@convex-dev/static-hosting" />
+          <StackItem
+            label="Hosting"
+            value="@convex-dev/static-hosting"
+            href={CONVEX_STATIC_HOSTING_URL}
+          />
           <StackItem label="Discord" value="Interactions API, guild commands, modals" />
-          <StackItem label="Icons" value="Phosphor Icons" />
+          <StackItem label="Icons" value="Phosphor Icons" href={PHOSPHOR_URL} />
           <StackItem label="Export" value="jsPDF for PDF, native strings for CSV" />
-          <StackItem label="DX" value="Typed end to end, zero webhook plumbing" />
+          <StackItem label="Source" value="Open source, fork and self host" href={REPO_URL} />
         </div>
       </div>
     </section>
   );
 }
 
-function StackItem({ label, value }: { label: string; value: string }) {
+// Stack row. Optional href turns the value into an external link so the
+// Phosphor Icons and Source rows can jump out to phosphoricons.com and the
+// public repo without introducing a separate list component.
+function StackItem({ label, value, href }: { label: string; value: string; href?: string }) {
   return (
     <div className="flex flex-col gap-1 border-t border-[#2a2a2a] pt-5">
       <span className="text-xs font-semibold tracking-[0.25em] text-[#9aa0aa] uppercase">
         {label}
       </span>
-      <span className="text-base leading-relaxed text-[#f2f3f5]">{value}</span>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-base leading-relaxed text-[#f2f3f5] underline decoration-[#3f4249] underline-offset-4 transition-colors hover:decoration-[#f2f3f5]">
+          {value}
+          <ArrowUpRight size={14} weight="bold" aria-hidden />
+        </a>
+      ) : (
+        <span className="text-base leading-relaxed text-[#f2f3f5]">{value}</span>
+      )}
     </div>
   );
 }
 
-// Final CTA. Two links. Keep it quiet.
+// Final CTA. No sign-in button since the hosted instance is team-only. All
+// three actions take a visitor toward running their own fork.
 function CtaSection() {
   return (
     <section className="bg-[var(--color-bg)]">
@@ -562,24 +681,127 @@ function CtaSection() {
         </h2>
 
         <div className="flex flex-wrap items-center gap-4">
-          <Link
-            to="/"
+          <a
+            href={REPO_FORK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group inline-flex items-center gap-2 rounded-full border border-[var(--color-ink)] bg-[var(--color-ink)] px-6 py-4 text-base font-medium text-[var(--color-surface)] shadow-[var(--shadow-window)] transition-transform duration-150 active:translate-y-px">
-            Sign in to Forge
-            <ArrowRight size={18} weight="bold" />
-          </Link>
+            <GitFork size={18} weight="bold" aria-hidden />
+            Fork the repo
+            <ArrowUpRight size={18} weight="bold" />
+          </a>
           <Link
             to="/docs"
             className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4 text-base font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]">
             Read the docs
             <ArrowUpRight size={18} weight="bold" />
           </Link>
+          <a
+            href={CONVEX_COMMUNITY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4 text-base font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]">
+            <DiscordLogo size={18} weight="fill" aria-hidden />
+            Join the Convex community
+            <ArrowUpRight size={18} weight="bold" />
+          </a>
         </div>
 
         <p className="border-t border-[var(--color-border)] pt-6 text-sm text-[var(--color-muted)]">
-          For Convex by Convex.
+          For Discord servers built with{" "}
+          <a
+            href={CONVEX_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+            Convex
+          </a>
+          .
         </p>
       </div>
     </section>
+  );
+}
+
+// Colophon. Sits at the very bottom of the About page. Credits the builder,
+// links the three personal socials the user asked for, and states the
+// project license so anyone evaluating the fork path knows the terms.
+function Colophon() {
+  return (
+    <section className="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-6 px-6 py-14 sm:px-10 sm:py-16 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+        <div className="flex flex-col gap-3 text-sm leading-relaxed text-[var(--color-ink)] lg:max-w-2xl">
+          <p>
+            Created by{" "}
+            <a
+              href={AUTHOR_X_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+              Wayne
+            </a>{" "}
+            with{" "}
+            <a
+              href={CONVEX_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+              Convex
+            </a>
+            , Cursor, and Claude Opus 4.7.
+          </p>
+          <p className="text-[var(--color-muted)]">
+            This project is licensed under the{" "}
+            <a
+              href="https://www.apache.org/licenses/LICENSE-2.0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--color-ink)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)]">
+              Apache License 2.0
+            </a>
+            .
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <SocialIconLink href={AUTHOR_X_URL} label="Follow Wayne on X">
+            <XLogo size={16} weight="bold" aria-hidden />
+          </SocialIconLink>
+          <SocialIconLink href={AUTHOR_LINKEDIN_URL} label="Connect with Wayne on LinkedIn">
+            <LinkedinLogo size={16} weight="bold" aria-hidden />
+          </SocialIconLink>
+          <SocialIconLink href={AUTHOR_GITHUB_URL} label="Follow Wayne on GitHub">
+            <GithubLogo size={16} weight="bold" aria-hidden />
+          </SocialIconLink>
+          <SocialIconLink href={CONVEX_COMMUNITY_URL} label="Join the Convex community Discord">
+            <DiscordLogo size={16} weight="fill" aria-hidden />
+          </SocialIconLink>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Circular icon-only anchor used in the Colophon social row. Accessible name
+// lives on aria-label because the visual content is only an icon.
+function SocialIconLink({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]">
+      {children}
+    </a>
   );
 }

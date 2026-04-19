@@ -54,7 +54,7 @@
     <text x="316" y="648" font-family="Inter, sans-serif" font-size="14" fill="#dbdee1">10</text>
 
     <line x1="316" y1="680" x2="1324" y2="680" stroke="#3f4249" stroke-width="1"/>
-    <text x="316" y="708" font-family="Inter, sans-serif" font-size="12" fill="#949ba4">Submitted 2 min ago &middot; ID 28c1f9</text>
+    <text x="316" y="708" font-family="Inter, sans-serif" font-size="12" fill="#949ba4">Submitted 2 min ago · ID 28c1f9</text>
 
     <!-- Buttons -->
     <rect x="316" y="732" width="128" height="44" rx="6" fill="#248046"/>

@@ -4,6 +4,17 @@ All notable changes to Forge. Format follows [keepachangelog.com](https://keepac
 
 ## [Unreleased]
 
+### Changed
+
+- Rewrote the public `/about` marketing page and the sign-in footer so the hosted Forge instance reads as an internal Convex team app rather than a general-purpose sign-in destination.
+  - `src/pages/About.tsx` — removed both sign-in CTAs (the hero "Sign in with GitHub" button and the closing "Sign in to Forge" button). Added an `InternalAppNotice` card directly under the hero eyebrow that states sign in is locked to `@convex.dev` emails and points visitors at the fork + docs path. Primary hero CTA is now `Fork the repo` (deep-links to `/fork`), backed by `Read the setup guide` and `Join the Convex community`. Closing CTA mirrors the same three actions. Footnote changed from "For Convex by Convex. Open source and free to self host." to "For Discord servers built with Convex." with the word "Convex" linking out to `https://www.convex.dev`.
+  - New external links centralised at the top of the file: `REPO_FORK_URL`, `CONVEX_URL`, `CONVEX_STATIC_HOSTING_URL`, `CONVEX_COMMUNITY_URL`, `AUTHOR_X_URL`, `AUTHOR_LINKEDIN_URL`, `AUTHOR_GITHUB_URL`.
+  - Stack table: `Backend` row now links to `https://www.convex.dev`, `Hosting` row links to `https://www.convex.dev/components/static-hosting`, and the `Source` row copy updated to "Open source, fork and self host".
+  - Added a new `Colophon` section at the very bottom of the page: "Created by Wayne with Convex, Cursor, and Claude Opus 4.7. Connect on Twitter/X, LinkedIn, and GitHub." plus "This project is licensed under the Apache License 2.0." with an outbound link to the license text. Social row uses Phosphor `XLogo`, `LinkedinLogo`, `GithubLogo`, and `DiscordLogo` icon-only pills with `aria-label`s.
+  - `src/components/auth/SignIn.tsx` — attribution changed to "For Discord servers built with Convex." keeping the inline `About` link. Replaced the single "Read the setup guide" text link with a three-icon row (Phosphor `BookOpen` → `/docs`, `GithubLogo` → repo, `DiscordLogo` → Convex community) so visitors who cannot sign in still have three ways to explore the project.
+  - `docs/setup-guide.md` and `src/pages/Docs.tsx` (overview section) both grew an internal-app note after the opening paragraph explaining that sign in on the hosted instance is Convex-team only and the reader should fork + self host.
+- Verification: `npx tsc --noEmit -p tsconfig.app.json` and `ReadLints` on the edited files clean.
+
 ### Fixed
 
 - Static hosting deploy failed with `Could not find function for 'staticHosting:generateUploadUrls'`. Root cause: the `@convex-dev/static-hosting@0.1.3` CLI calls the batched `generateUploadUrls` (plural) and `recordAssets` helpers introduced in 0.1.3, but `convex/staticHosting.ts` was still destructuring only the four functions the README example shows (`generateUploadUrl`, `recordAsset`, `gcOldAssets`, `listAssets`). The batched helpers therefore never got registered as Convex functions, so the CLI's `npx convex run staticHosting:generateUploadUrls` blew up with "Did you forget to run `npx convex dev`?" halfway through `npx @convex-dev/static-hosting deploy`. Fix: added `generateUploadUrls` and `recordAssets` to the destructured export so every function the CLI expects is now registered. No app code change beyond the one destructuring line. Verified with `ReadLints` on `convex/staticHosting.ts` (clean). File-by-file check in `node_modules/@convex-dev/static-hosting/dist/cli/upload.js:175` confirmed the CLI calls the plural name.
@@ -14,6 +25,12 @@ All notable changes to Forge. Format follows [keepachangelog.com](https://keepac
 - Route wired in `src/App.tsx` at `/about`. Catch-all redirect to `/` still covers every other unknown path.
 - About link on the homepage only. `src/components/auth/SignIn.tsx` now renders "For Convex by Convex. About" as an inline attribution with the word "About" linking to `/about`. Kept the existing "Read the setup guide" link on the opposite side of the footer row. No other page links to About, so the marketing story stays scoped to the sign in surface.
 - Verification: `npx tsc --noEmit -p tsconfig.app.json` clean. `ReadLints` on `src/pages/About.tsx`, `src/App.tsx`, and `src/components/auth/SignIn.tsx` clean.
+
+### Fixed
+
+- `/about` hero image showed as a broken icon because all four product mockup SVGs used HTML-only named entities (`&middot;`, `&hellip;`, `&rarr;`) inside `<text>` nodes. SVG is strict XML, so browsers refused to parse them and rendered the `alt` text as a collapsed `img` with no intrinsic size. Replaced every instance in `public/about/builder.svg`, `public/about/queue.svg`, `public/about/ticket.svg`, and `public/about/results.svg` with the literal Unicode characters (U+00B7, U+2026, U+2192). Verified with `xmllint --noout` on all four files.
+- Added open source messaging and two new outbound links to `src/pages/About.tsx`: a GitHub pill in the hero eyebrow, a "View the repo" CTA next to the sign in button, a source-on-GitHub line in the intro paragraph, a "Source" row in the stack table linking to the public repo, a linked "Phosphor Icons" row pointing at `phosphoricons.com`, and a "Star it on GitHub" button in the closing CTA. Repo URL centralized as `REPO_URL` and `PHOSPHOR_URL` at the top of the file so it is one edit if either moves.
+- Pointed every Forge repo link at the canonical `https://github.com/waynesutton/forge-for-discord` URL. Updated `REPO_URL` in `src/pages/About.tsx` (which covers every hero pill, CTA, stack row, and closing button on the marketing page in one edit) and added a "Forge source code" line to the References section of `docs/setup-guide.md`, `docs/discord-setup.md`, and the in-app mirror in `src/pages/Docs.tsx`.
 
 ### Security
 

@@ -4,6 +4,8 @@ Everything you need to run Forge against any Discord server. Written for a first
 
 Forge is a self-hostable Discord form builder and approval engine. You design forms in a web dashboard, publish each one as a slash command, collect submissions through native Discord modals, optionally route them through a mod queue, and publish approved answers into any text or forum channel. Real time end to end via Convex.
 
+> Heads up: this repo is the same code that powers Convex's internal Forge instance. Sign in on that hosted deployment is locked to `@convex.dev` email addresses and will reject everyone else. To run Forge for your own Discord server, fork https://github.com/waynesutton/forge-for-discord, deploy your own Convex project, and follow this guide end to end. Every step below assumes you are running your own fork, not the Convex-hosted instance.
+
 ## Contents
 
 - What Forge is
@@ -571,6 +573,7 @@ Use the in-app version when you want the copy-markdown helper. Use this file on 
 
 ## References
 
+- Forge source code: https://github.com/waynesutton/forge-for-discord
 - Discord developer portal: https://discord.com/developers/applications
 - Discord bots overview: https://docs.discord.com/developers/bots/overview
 - Discord developer reference: https://docs.discord.com/developers/reference

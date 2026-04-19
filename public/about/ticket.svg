@@ -13,7 +13,7 @@
 
   <!-- Lifecycle timeline header -->
   <text x="120" y="140" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#676565" letter-spacing="1.5">TICKET LIFECYCLE</text>
-  <text x="120" y="210" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#151515" letter-spacing="-2">Open &rarr; Claimed &rarr; Resolved &rarr; Closed</text>
+  <text x="120" y="210" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#151515" letter-spacing="-2">Open → Claimed → Resolved → Closed</text>
 
   <!-- Three forum thread cards side by side -->
   <g filter="url(#tShadow)">
