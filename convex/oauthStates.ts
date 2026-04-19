@@ -21,6 +21,7 @@ export const create = internalMutation({
   args: {
     userId: v.id("users"),
     kind: v.literal("discord_install"),
+    returnOrigin: v.optional(v.string()),
   },
   returns: v.object({
     state: v.string(),
@@ -34,6 +35,7 @@ export const create = internalMutation({
       userId: args.userId,
       kind: args.kind,
       expiresAt,
+      returnOrigin: args.returnOrigin,
     });
     return { state, expiresAt };
   },
@@ -47,8 +49,20 @@ export const consume = internalMutation({
     state: v.string(),
     kind: v.literal("discord_install"),
   },
-  returns: v.union(v.null(), v.object({ userId: v.id("users") })),
-  handler: async (ctx, args): Promise<{ userId: Id<"users"> } | null> => {
+  returns: v.union(
+    v.null(),
+    v.object({
+      userId: v.id("users"),
+      returnOrigin: v.union(v.string(), v.null()),
+    }),
+  ),
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{
+    userId: Id<"users">;
+    returnOrigin: string | null;
+  } | null> => {
     const row = await ctx.db
       .query("oauthStates")
       .withIndex("by_state", (q) => q.eq("state", args.state))
@@ -57,7 +71,7 @@ export const consume = internalMutation({
     if (row.kind !== args.kind) return null;
     await ctx.db.delete("oauthStates", row._id);
     if (row.expiresAt < Date.now()) return null;
-    return { userId: row.userId };
+    return { userId: row.userId, returnOrigin: row.returnOrigin ?? null };
   },
 });
 

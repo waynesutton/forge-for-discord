@@ -56,7 +56,13 @@ export function Settings() {
     setClientError(null);
     setClientSuccess(null);
     try {
-      const { url } = await generateInstallUrl({});
+      // Pass the current origin so the Discord install HTTP callback can
+      // 302 back to the same domain we started on, regardless of the Convex
+      // deployment's APP_URL setting. Prevents the live site from bouncing
+      // the admin to localhost after a cancelled or successful install.
+      const { url } = await generateInstallUrl({
+        returnOrigin: window.location.origin,
+      });
       window.location.href = url;
     } catch (err) {
       setPending(false);

@@ -82,14 +82,41 @@ type DiscordGuildRoleResponse = {
   managed: boolean;
 };
 
+// Parse and normalize a client-supplied origin for the Discord install
+// callback. Only http/https are allowed; we store `URL.origin` so any
+// path, query, or fragment the client might have tacked on is stripped.
+// Returns `undefined` when input is missing or invalid so the caller can
+// fall back to the request origin in the HTTP callback.
+function sanitizeReturnOrigin(input: string | undefined): string | undefined {
+  if (!input) return undefined;
+  try {
+    const parsed = new URL(input);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return undefined;
+    }
+    return parsed.origin;
+  } catch {
+    return undefined;
+  }
+}
+
 // Admin-initiated. Authenticated: the signed-in admin is tied to the nonce
 // so the HTTP callback can figure out which user's workspace to register the
 // guild into. Returns the full Discord authorize URL so the client can point
 // `window.location.href` at it.
 export const generateInstallUrl = action({
-  args: {},
+  args: {
+    // Frontend passes `window.location.origin` so the HTTP callback can 302
+    // back to the same domain the admin started from. Optional for backward
+    // compat with older clients; when absent the callback falls back to
+    // APP_URL / request origin.
+    returnOrigin: v.optional(v.string()),
+  },
   returns: v.object({ url: v.string(), expiresAt: v.number() }),
-  handler: async (ctx): Promise<{ url: string; expiresAt: number }> => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ url: string; expiresAt: number }> => {
     await requireAllowedViewer(ctx);
 
     const identity = await ctx.auth.getUserIdentity();
@@ -117,11 +144,18 @@ export const generateInstallUrl = action({
       throw new ConvexError({ code: "unknown_user" });
     }
 
+    // Validate the caller-supplied origin before persisting it. Parse as
+    // URL, require http(s), and store only the `.origin` to avoid persisting
+    // user-controlled paths or fragments. Anything malformed is dropped so
+    // the callback falls back to APP_URL / request origin.
+    const sanitizedReturnOrigin = sanitizeReturnOrigin(args.returnOrigin);
+
     const { state, expiresAt } = await ctx.runMutation(
       internal.oauthStates.create,
       {
         userId: me._id,
         kind: "discord_install",
+        returnOrigin: sanitizedReturnOrigin,
       },
     );
 

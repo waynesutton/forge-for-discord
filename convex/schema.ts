@@ -239,6 +239,12 @@ export default defineSchema({
     userId: v.id("users"),
     kind: v.literal("discord_install"),
     expiresAt: v.number(),
+    // Origin the admin was on when they minted the nonce (e.g.
+    // "https://usable-kiwi-349.convex.site" or "http://localhost:5173").
+    // The Discord install HTTP callback uses this to 302 back to the same
+    // origin instead of trusting `APP_URL`, which can drift between
+    // deployments and strand users on the wrong domain.
+    returnOrigin: v.optional(v.string()),
   })
     .index("by_state", ["state"])
     .index("by_expiresat", ["expiresAt"])

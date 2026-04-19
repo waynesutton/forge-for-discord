@@ -445,32 +445,44 @@ http.route({
   method: "GET",
   handler: httpAction(async (ctx, request) => {
     const url = new URL(request.url);
-    const appUrl = process.env.APP_URL ?? url.origin;
+    // Env fallback for the redirect origin. Only used when the oauthStates
+    // row is missing or didn't carry the client origin (e.g. a stale nonce
+    // from before this field existed, or a bad state param). If both are
+    // unset we fall back to the request origin, which always matches the
+    // convex.site host that received the callback.
+    const fallbackOrigin = process.env.APP_URL ?? url.origin;
 
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
     const error = url.searchParams.get("error");
 
+    // Consume the state first (even on the error path) so we can recover
+    // the origin the admin was on when they minted the nonce. Trusting the
+    // oauthStates row instead of APP_URL keeps the callback resilient to
+    // env drift between dev and prod deployments.
+    const nonce = state
+      ? await ctx.runMutation(internal.oauthStates.consume, {
+          state,
+          kind: "discord_install",
+        })
+      : null;
+    const returnOrigin = nonce?.returnOrigin ?? fallbackOrigin;
+
     if (error) {
       return Response.redirect(
-        `${appUrl}/app/settings?error=${encodeURIComponent(error)}`,
+        `${returnOrigin}/app/settings?error=${encodeURIComponent(error)}`,
         302,
       );
     }
     if (!code || !state) {
       return Response.redirect(
-        `${appUrl}/app/settings?error=missing_params`,
+        `${returnOrigin}/app/settings?error=missing_params`,
         302,
       );
     }
-
-    const nonce = await ctx.runMutation(internal.oauthStates.consume, {
-      state,
-      kind: "discord_install",
-    });
     if (!nonce) {
       return Response.redirect(
-        `${appUrl}/app/settings?error=invalid_state`,
+        `${returnOrigin}/app/settings?error=invalid_state`,
         302,
       );
     }
@@ -489,7 +501,7 @@ http.route({
       const applicationId = process.env.DISCORD_APPLICATION_ID;
       if (!botToken || !publicKey || !applicationId) {
         return Response.redirect(
-          `${appUrl}/app/settings?error=server_not_configured`,
+          `${returnOrigin}/app/settings?error=server_not_configured`,
           302,
         );
       }
@@ -509,14 +521,17 @@ http.route({
       );
 
       return Response.redirect(
-        `${appUrl}/app/settings?installed=${guildId}`,
+        `${returnOrigin}/app/settings?installed=${guildId}`,
         302,
       );
     } catch (err) {
       console.error("discord_install_callback_failed", { stage, err });
       const code =
         stage === "exchange" ? "oauth_exchange_failed" : "oauth_register_failed";
-      return Response.redirect(`${appUrl}/app/settings?error=${code}`, 302);
+      return Response.redirect(
+        `${returnOrigin}/app/settings?error=${code}`,
+        302,
+      );
     }
   }),
 });

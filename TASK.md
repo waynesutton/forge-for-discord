@@ -106,6 +106,17 @@ Mirrors `prds/forge-prd_1.md` section 12. Check items off as they ship. Move com
 
 ## Completed
 
+### 2026-04-19 01:58 UTC — Keep Discord install callback on the caller's origin
+
+- Root cause of the bug the user reported: `convex/http.ts` built every redirect from `process.env.APP_URL ?? url.origin`. `APP_URL` on the prod Convex deployment was still pinned to the `http://localhost:5173` value from `.env.example`, so a cancelled or completed Discord install on the live `convex.site` host 302d admins to `localhost:5173/app/settings?error=...`.
+- Persisted the caller's origin on the nonce row so the callback no longer depends on env. `convex/schema.ts` adds an optional `returnOrigin` column to `oauthStates`. `convex/oauthStates.ts` accepts `returnOrigin` on `create` and returns it on `consume` (validator widened to `v.union(v.string(), v.null())` on the consume return shape).
+- `convex/discord.ts` adds a `returnOrigin: v.optional(v.string())` arg on `generateInstallUrl` plus a new `sanitizeReturnOrigin` helper. The helper parses with `new URL(...)`, rejects anything that is not `http:` or `https:`, and returns only `URL.origin` so no paths, queries, or fragments get persisted.
+- `convex/http.ts` now consumes the state first (even on the `?error=access_denied` branch) so every redirect target uses `nonce.returnOrigin ?? APP_URL ?? url.origin`. `APP_URL` stays as a soft fallback; it is no longer a single point of failure.
+- `src/pages/Settings.tsx` calls `generateInstallUrl({ returnOrigin: window.location.origin })` on the Connect server click.
+- User also fixed `APP_URL` and `SITE_URL` on the prod Convex deployment in the same session, so the belt-and-suspenders fallback path is no longer being exercised.
+- Verified with `npx tsc --noEmit`, `npx tsc --noEmit -p convex/tsconfig.json`, and `ReadLints` on `convex/discord.ts`, `convex/http.ts`, `convex/oauthStates.ts`, `convex/schema.ts`, `src/pages/Settings.tsx`. All clean.
+- Files touched: `convex/schema.ts`, `convex/oauthStates.ts`, `convex/discord.ts`, `convex/http.ts`, `src/pages/Settings.tsx`, `changelog.md`, `files.md`, `TASK.md`.
+
 ### 2026-04-19 01:09 UTC — Tighten global border-radius to 0.25rem
 
 - Updated `--radius-window` in `src/styles/index.css` from `12px` to `0.25rem` (4px). Single-token edit cascades to the 70+ `rounded-[var(--radius-window)]` usages across Dashboard, Forms, Settings, Docs, SignIn, AccessDenied, NewForm, EditForm, FormLogs, FormResults, WindowFrame, and WindowTabs so every card, dropdown, button, and alert shares one crisp, technical edge.
